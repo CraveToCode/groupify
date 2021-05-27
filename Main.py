@@ -11,6 +11,7 @@ dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
+
 # Start Command
 start_msg = "Hi! I'm GroupifyBot! How can I help you?"
 
@@ -23,7 +24,31 @@ start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
 
 
+# Help Command
+help_msg = "GroupifyBot supports 3 features: Meetup-Scheduler, Bill Splitter, Event Organiser." \
+           "\n \n" \
+           "Type /meetup to start a new meetup event. This will output the best time for all your friends to meetup," \
+           "along with the best location." \
+           "\n \n" \
+           "Type /split to start a new bill to be split. This will output the exact amount each person will have to " \
+           "pay you." \
+           "\n \n" \
+           "Type /organize to start a new event organiser. The event organiser will help you plan your day and " \
+           "display the activities for the day chronologically. It even allows participants to propose activities" \
+           "that others can then bid on."
+
+
+def help(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text=help_msg)
+
+
+help_handler = CommandHandler('help', help)
+dispatcher.add_handler(help_handler)
+
+
 # Unknown Commands
+
+
 def unknown(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
 
