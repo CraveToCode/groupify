@@ -1,7 +1,9 @@
 # Initialize Bot
+import telegram
 import Key
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 import logging
+import Scheduler
 
 updater = Updater(token=Key.API_KEY, use_context=True)
 
@@ -13,7 +15,9 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 
 # Start Command
-start_msg = "Hi! I'm GroupifyBot! How can I help you?"
+start_msg = "Hi! I'm GroupifyBot! How can I help you?" \
+            "\n" \
+            "You may type /help for more information."
 
 
 def start(update, context):
@@ -33,7 +37,7 @@ help_msg = "GroupifyBot supports 3 features: Meetup-Scheduler, Bill Splitter, Ev
            "Type /split to start a new bill to be split. This will output the exact amount each person will have to " \
            "pay you." \
            "\n \n" \
-           "Type /organize to start a new event organiser. The event organiser will help you plan your day and " \
+           "Type /organise to start a new event organiser. The event organiser will help you plan your day and " \
            "display the activities for the day chronologically. It even allows participants to propose activities" \
            "that others can then bid on."
 
@@ -44,6 +48,11 @@ def help(update, context):
 
 help_handler = CommandHandler('help', help)
 dispatcher.add_handler(help_handler)
+
+
+# Meetup Scheduler
+
+dispatcher.add_handler(Scheduler.conv_handler)
 
 
 # Unknown Commands
