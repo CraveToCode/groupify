@@ -105,22 +105,26 @@ f) Any user can retrieve the main-list at any time.
 
 **Project Scope & Timeline**
 
+
 Objectives completed thus far:
-
-
+- Learnt the relevant API for the telegram bot, as well as the relevant techstack needed.
+- Planned out development roadmap and proper program flow for the bot.
+- Implemented basic bot interface, with /start and /help commands that allow the user to learn more about the bot.
+- Implemented basic framework for the Meetup Scheduler, Bill Splitter and Event Organiser in the bot.
 
 Features to be completed by end June:
-Finish up most features for the Bill Splitter
-Finish up basic feature for Event Scheduler
-Create prototype for timetable program to be used in Event Scheduler and test it
-Test auto-suggester and figure out best way to decide time slots
-Implement Event Organiser if time permits
+- Finish up most features for the Bill Splitter
+- Finish up basic feature for Event Scheduler
+- Create prototype for timetable program to be used in Event Scheduler and test it
+- Test auto-suggester and figure out best way to decide time slots
+- Implement Event Organiser if time permits
 
 Features to be completed by the mid-end of July: 
 
-Polish up features, fully integrate all the features for Bill Splitter and Event Scheduler
-Test the bot and ensure it is working as intended
-Possibly add additional features that would be suited to the purpose of the bot
-Integrate Google Pay to Bill Splitter?
+- Polish up features, fully integrate all the features for Bill Splitter and Event Scheduler
+- Test the bot and ensure it is working as intended
+- Possibly add additional features that would be suited to the purpose of the bot
+- Integrate Google Pay to Bill Splitter?
+
 
 ![image](https://user-images.githubusercontent.com/13115675/120102136-31c48400-c17c-11eb-8ea5-a1f36151986e.png)
