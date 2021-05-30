@@ -1,10 +1,13 @@
-# Initialize Bot
+# Main file to initialize bot from
+
 from telegram import Update
 import Key
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 import logging
-from Scheduler import conv_handler
+from Scheduler import conv_handler_meetup
+from Organiser import conv_handler_organiser
 
+# API Token
 updater = Updater(token=Key.API_KEY, use_context=True)
 
 dispatcher = updater.dispatcher
@@ -13,9 +16,8 @@ dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
+
 # Start Command
-
-
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=
     f"Hi {update.effective_user.first_name}! I'm GroupifyBot! How can I help you?"
@@ -50,12 +52,16 @@ dispatcher.add_handler(help_handler)
 
 
 # Meetup Scheduler
+dispatcher.add_handler(conv_handler_meetup)
 
-dispatcher.add_handler(conv_handler)
+# Bill Splitter
+
+
+# Event Organiser
+dispatcher.add_handler(conv_handler_organiser)
+
 
 # Unknown Commands
-
-
 def unknown(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
 
