@@ -53,15 +53,15 @@ The main purpose of the meet-up scheduler is to derive a common optimum time amo
 It also has a secondary optional feature, a Location Suggester. The Location Suggester will choose the optimum place for the users to have a particular type of event at (e.g. nearest restaurant or library between all users).
 
 a) Start new event by a user
-  - Bot will prompt user for title, short description, minimum time, timeframe for event (next week, next 2 weeks), and participants
-  - Bot will prompt user whether they require a Location Suggester. If the feature is chosen, the bot will further prompt user to choose a type of venue (e.g. food place, movie     theatre, park, MRT, etc.)
+    Bot will prompt user for title, short description, minimum time, timeframe for event (next week, next 2 weeks), and participants
+    Bot will prompt user whether they require a Location Suggester. If the feature is chosen, the bot will further prompt user to choose a type of venue (e.g. food place, movie     theatre, park, MRT, etc.)
 b) Fill timeslots - users will have a UI pop up, possibly made with HTML, to display a time table, allowing users to select which days and times they are free
 c) If Location Suggester is enabled, users will need to input their starting location for the event.
 d) Auto result calculation - after all users in the group have filled up their time slots, the bot will message the group with the optimal time where the most people can attend
-  - Users can choose to accept the proposed time slot, or choose another one
-  -  After confirmation, user can select whether to receive reminders 
-  -  Time slot of event can still be changed
-  -  Should Location Suggester be enabled, the message from the bot will include the calculated optimum location, such that it is as close as possible to all users.
+    Users can choose to accept the proposed time slot, or choose another one
+    After confirmation, user can select whether to receive reminders 
+    Time slot of event can still be changed
+    Should Location Suggester be enabled, the message from the bot will include the calculated optimum location, such that it is as close as possible to all users.
      Event creator can opt for a recalculation of the location for a different suggestion.
 e) View results - users should still be able to view the full calendar, and change their time slots
 f) Reminder - bot will message reminders to the group before the event
