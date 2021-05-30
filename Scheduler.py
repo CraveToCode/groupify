@@ -49,5 +49,5 @@ conv_handler = ConversationHandler(entry_points=[CommandHandler('meetup', meetup
                                        TITLE: [MessageHandler(Filters.text & ~Filters.command, title)],
                                        DURATION: [MessageHandler(Filters.text & ~Filters.command, duration)],
                                        TIMEFRAME: [MessageHandler(Filters.text & ~Filters.command, timeframe)]},
-                                   fallbacks=[CommandHandler('cancel', cancel), CommandHandler('unknown', unknown)],
+                                   fallbacks=[CommandHandler('cancel', cancel)],
                                    )
