@@ -1,10 +1,13 @@
 # groupify
 
-Proposed Level of Achievement: Apollo 11
+**Proposed Level of Achievement:** Apollo 11
+
 
 Groupify is a telegram bot that contains several features that would be useful to groups who want to organise meet ups, such as a Meet-up Scheduler, a Bill Splitter and an Event Organiser.
 
+
 **Motivation**
+
 In many friend groups such as our own, we often encounter situations where we want to meet up sometime soon but have no idea what would be a good time. Typically, someone suggests a time to meet up, and then various members of the group reply over the next few hours, only for one person to reply that he cannot make it, thus causing the whole plan to fall apart. Even if the group comes to a consensus, usually the message history is flooded and there is no easy way to retrieve the outcome.
 
 There exist certain websites that allow users to put in the times when they are available, but they can be rather inconvenient for users as someone usually has to create some event and get everyone to click on a link for an external site. The UI might also not be ideal for mobile platforms.
@@ -13,7 +16,8 @@ Furthermore, another common issue that we notice in group outings is having to s
 
 Thus, we see an opportunity to create a bot that can tackle these issues while also being integrated into the messaging app and being convenient and easy to use.
 
-**Aim **
+
+**Aim**
 
 Planning should not be a burden - one should look forward to planning activities to meet up with their close ones and have fun. Our product aims to make it easier for groups, be it friends or families, to be able to easily plan their activities, and make the execution of the activity not a chore. After chatting on a messaging platform to make plans for an activity, our product will enable them to easily upload the finalized information onto it. The bot will then provide the users valuable information to organize the time and place of their activity, as well as provide additional quality-of-life features to make going-out less of a hassle. 
 
