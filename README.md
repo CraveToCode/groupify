@@ -4,7 +4,7 @@ Proposed Level of Achievement: Apollo 11
 
 Groupify is a telegram bot that contains several features that would be useful to groups who want to organise meet ups, such as a Meet-up Scheduler, a Bill Splitter and an Event Organiser.
 
-Motivation
+**Motivation**
 In many friend groups such as our own, we often encounter situations where we want to meet up sometime soon but have no idea what would be a good time. Typically, someone suggests a time to meet up, and then various members of the group reply over the next few hours, only for one person to reply that he cannot make it, thus causing the whole plan to fall apart. Even if the group comes to a consensus, usually the message history is flooded and there is no easy way to retrieve the outcome.
 
 There exist certain websites that allow users to put in the times when they are available, but they can be rather inconvenient for users as someone usually has to create some event and get everyone to click on a link for an external site. The UI might also not be ideal for mobile platforms.
@@ -13,7 +13,7 @@ Furthermore, another common issue that we notice in group outings is having to s
 
 Thus, we see an opportunity to create a bot that can tackle these issues while also being integrated into the messaging app and being convenient and easy to use.
 
-Aim 
+**Aim **
 
 Planning should not be a burden - one should look forward to planning activities to meet up with their close ones and have fun. Our product aims to make it easier for groups, be it friends or families, to be able to easily plan their activities, and make the execution of the activity not a chore. After chatting on a messaging platform to make plans for an activity, our product will enable them to easily upload the finalized information onto it. The bot will then provide the users valuable information to organize the time and place of their activity, as well as provide additional quality-of-life features to make going-out less of a hassle. 
 
@@ -22,7 +22,7 @@ Ultimately, it is aimed to be an all-in-one bot that handles the menial pre-plan
 
 
 
-User Stories
+**User Stories**
 
 
 1. As a user, I want to be able to easily come to an agreement on when to meet with my friends, such that everyone is able to make it. It should allow everyone to fill in their open time slots in a convenient manner, reducing back-and-forth discussions.
@@ -34,7 +34,7 @@ User Stories
 4. As a user, I want to be able to quickly build a list that has the finalized activities for the day sorted by time, so that everyone in the group is on the same page on the day itself.
 
 
-Core Features
+**Core Features**
 
 
 The Telegram Bot provides several commands that users can use to launch one of the following three core functions:
@@ -71,7 +71,7 @@ Bill Splitter Features:
 
 The Bill Splitter has different functionalities for the host (person who pays the total bill and is now attempting to collect the owed money) and the other users.
 
-	Host:
+
 Create new bill and select users in the chat group who are responsible for the bill
 Upload image of receipt for evidence. 
 Insert items in receipt into a UI.
@@ -114,7 +114,7 @@ The list will auto sort in chronological order and be posted to the group.
 Any user can retrieve the main-list at any time.
 
 
-Project Scope & Timeline
+**Project Scope & Timeline**
 
 Objectives completed thus far:
 
@@ -134,78 +134,4 @@ Test the bot and ensure it is working as intended
 Possibly add additional features that would be suited to the purpose of the bot
 Integrate Google Pay to Bill Splitter?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+![image](https://user-images.githubusercontent.com/13115675/120102136-31c48400-c17c-11eb-8ea5-a1f36151986e.png)
