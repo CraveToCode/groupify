@@ -43,75 +43,60 @@ Bill Splitter
 Event Organiser
 
 
-Meet-up Scheduler Features:
+**Meet-up Scheduler Features:**
 
 The main purpose of the meet-up scheduler is to derive a common optimum time amongst all users, for the event to be held at. 
 It also has a secondary optional feature, a Location Suggester. The Location Suggester will choose the optimum place for the users to have a particular type of event at (e.g. nearest restaurant or library between all users).
 
-Start new event by a user
-Bot will prompt user for title, short description, minimum time, timeframe for event (next week, next 2 weeks), and participants
-Bot will prompt user whether they require a Location Suggester. If the feature is chosen, the bot will further prompt user to choose a type of venue (e.g. food place, movie theatre, park, MRT, etc.)
-Fill timeslots - users will have a UI pop up, possibly made with HTML, to display a time table, allowing users to select which days and times they are free
-If Location Suggester is enabled, users will need to input their starting location for the event.
-Auto result calculation - after all users in the group have filled up their time slots, the bot will message the group with the optimal time where the most people can attend
-Users can choose to accept the proposed time slot, or choose another one
-After confirmation, user can select whether to receive reminders 
-Time slot of event can still be changed
-
-Should Location Suggester be enabled, the message from the bot will include the calculated optimum location, such that it is as close as possible to all users.
-Event creator can opt for a recalculation of the location for a different suggestion.
-
-View results - users should still be able to view the full calendar, and change their time slots
-Reminder - bot will message reminders to the group before the event
+a) Start new event by a user
+  - Bot will prompt user for title, short description, minimum time, timeframe for event (next week, next 2 weeks), and participants
+  - Bot will prompt user whether they require a Location Suggester. If the feature is chosen, the bot will further prompt user to choose a type of venue (e.g. food place, movie     theatre, park, MRT, etc.)
+b) Fill timeslots - users will have a UI pop up, possibly made with HTML, to display a time table, allowing users to select which days and times they are free
+c) If Location Suggester is enabled, users will need to input their starting location for the event.
+d) Auto result calculation - after all users in the group have filled up their time slots, the bot will message the group with the optimal time where the most people can attend
+  - Users can choose to accept the proposed time slot, or choose another one
+  -  After confirmation, user can select whether to receive reminders 
+  -  Time slot of event can still be changed
+  -  Should Location Suggester be enabled, the message from the bot will include the calculated optimum location, such that it is as close as possible to all users.
+     Event creator can opt for a recalculation of the location for a different suggestion.
+e) View results - users should still be able to view the full calendar, and change their time slots
+f) Reminder - bot will message reminders to the group before the event
 
 
 
 
-Bill Splitter Features:
+**Bill Splitter Features:**
 
 The Bill Splitter has different functionalities for the host (person who pays the total bill and is now attempting to collect the owed money) and the other users.
 
-
-Create new bill and select users in the chat group who are responsible for the bill
-Upload image of receipt for evidence. 
-Insert items in receipt into a UI.
-Select users from the bill group who are responsible for each item.
-Fill in GST and Service charge, allowing bot to calculate payment
-Update any of the above details.
-Disable payment reminders for the users.
-Finalize bill before sending auto-customized payment breakdown to each user.
-Checklist for host to indicate people who have already paid
+Host:
+a) Create new bill and select users in the chat group who are responsible for the bill
+b) Upload image of receipt for evidence. 
+c) Insert items in receipt into a UI.
+d) Select users from the bill group who are responsible for each item.
+e) Fill in GST and Service charge, allowing bot to calculate payment
+f) Update any of the above details.
+g) Disable payment reminders for the users.
+h) Finalize bill before sending auto-customized payment breakdown to each user.
+i) Checklist for host to indicate people who have already paid
 
 User:
-View personalized bill statement, which contains the total sum that the person needs to pay the host, along with the breakdown of how the total sum is derived
-Reminders to pay the bill - can be configured to choose how frequently to remind, with a maximum time limit of 24 hours between each reminder. Reminders cannot be toggled to be entirely turned off by the user, unless the Host wishes to do so.
+a) View personalized bill statement, which contains the total sum that the person needs to pay the host, along with the breakdown of how the total sum is derived
+b) Reminders to pay the bill - can be configured to choose how frequently to remind, with a maximum time limit of 24 hours between each reminder. Reminders cannot be toggled to be entirely turned off by the user, unless the Host wishes to do so.
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Event Organiser Features
+**Event Organiser Features**
 
 The Event Organiser enables people to insert finalized events into a common list. The bot will auto-sort the items by chronological order. The features are as follows;
 
-Start new event by a user
-Bot will prompt user to choose a name for the event and select participants for the event. A main list will be created, with no current sub-events.
-Any user will be able to create a sub-event, and input parameters for time, place, and activity, which will be proposed to the group.
-If all users approve the sub-event, the event will be added to the main list.
-The list will auto sort in chronological order and be posted to the group.
-Any user can retrieve the main-list at any time.
+a) Start new event by a user
+b) Bot will prompt user to choose a name for the event and select participants for the event. A main list will be created, with no current sub-events.
+c) Any user will be able to create a sub-event, and input parameters for time, place, and activity, which will be proposed to the group.
+d) If all users approve the sub-event, the event will be added to the main list.
+e) The list will auto sort in chronological order and be posted to the group.
+f) Any user can retrieve the main-list at any time.
 
 
 **Project Scope & Timeline**
