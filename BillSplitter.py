@@ -1,3 +1,4 @@
+from telegram import Update
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters
 import logging
 
@@ -48,10 +49,11 @@ def unknown(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
 
 
-conv_handler_split = ConversationHandler(entry_points=[CommandHandler('split', billSplitter)],
-                                   states={
-                                       PARTICIPANTS: [MessageHandler(Filters.text & ~Filters.command, selectParticipants],
-                                       IMAGE: [MessageHandler(Filters.text & ~Filters.command, uploadImage)],
-                                       ITEMS: [MessageHandler(Filters.text & ~Filters.command, inputItems]},
-                                   fallbacks=[CommandHandler('cancel', cancel)],
-                                   )
+conv_handler_split = ConversationHandler(
+    entry_points=[CommandHandler('split', billSplitter)],
+    states={
+        PARTICIPANTS: [MessageHandler(Filters.text & ~Filters.command, selectParticipants)],
+        IMAGE: [MessageHandler(Filters.text & ~Filters.command, uploadImage)],
+        ITEMS: [MessageHandler(Filters.text & ~Filters.command, inputItems)]},
+    fallbacks=[CommandHandler('cancel', cancel)],
+)
