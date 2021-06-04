@@ -6,6 +6,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
 import logging
 from Scheduler import conv_handler_meetup
 from Organiser import conv_handler_organiser
+from BillSplitter import conv_handler_split
 
 # API Token
 updater = Updater(token=Key.API_KEY, use_context=True)
@@ -55,7 +56,7 @@ dispatcher.add_handler(help_handler)
 dispatcher.add_handler(conv_handler_meetup)
 
 # Bill Splitter
-
+dispatcher.add_handler(conv_handler_split)
 
 # Event Organiser
 dispatcher.add_handler(conv_handler_organiser)
