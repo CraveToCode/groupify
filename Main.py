@@ -1,8 +1,14 @@
-# Initialize Bot
-import Key
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import logging
+# Main file to initialize bot from
 
+from telegram import Update
+import Key
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
+import logging
+from Scheduler import conv_handler_meetup
+from Organiser import conv_handler_organiser
+from BillSplitter import conv_handler_split
+
+# API Token
 updater = Updater(token=Key.API_KEY, use_context=True)
 
 dispatcher = updater.dispatcher
@@ -13,11 +19,11 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 
 # Start Command
-start_msg = "Hi! I'm GroupifyBot! How can I help you?"
-
-
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=start_msg)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
+    f"Hi {update.effective_user.first_name}! I'm GroupifyBot! How can I help you?"
+    "\n"
+    "You may type /help for more information.")
 
 
 start_handler = CommandHandler('start', start)
@@ -33,7 +39,7 @@ help_msg = "GroupifyBot supports 3 features: Meetup-Scheduler, Bill Splitter, Ev
            "Type /split to start a new bill to be split. This will output the exact amount each person will have to " \
            "pay you." \
            "\n \n" \
-           "Type /organize to start a new event organiser. The event organiser will help you plan your day and " \
+           "Type /organise to start a new event organiser. The event organiser will help you plan your day and " \
            "display the activities for the day chronologically. It even allows participants to propose activities" \
            "that others can then bid on."
 
@@ -46,9 +52,17 @@ help_handler = CommandHandler('help', help)
 dispatcher.add_handler(help_handler)
 
 
+# Meetup Scheduler
+dispatcher.add_handler(conv_handler_meetup)
+
+# Bill Splitter
+dispatcher.add_handler(conv_handler_split)
+
+# Event Organiser
+dispatcher.add_handler(conv_handler_organiser)
+
+
 # Unknown Commands
-
-
 def unknown(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
 
