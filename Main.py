@@ -8,7 +8,7 @@ from Organiser import conv_handler_organiser
 from BillSplitter import conv_handler_split
 
 # API Token
-updater = Updater(token=API_KEY, use_context=True)
+updater = Updater(token=os.environ['API_KEY'], use_context=True)
 
 dispatcher = updater.dispatcher
 
