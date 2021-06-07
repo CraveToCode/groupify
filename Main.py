@@ -3,6 +3,7 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 import logging
+import os
 from Scheduler import conv_handler_meetup
 from Organiser import conv_handler_organiser
 from BillSplitter import conv_handler_split
