@@ -9,7 +9,10 @@ from Organiser import conv_handler_organiser
 from BillSplitter import conv_handler_split
 
 # API Token
-updater = Updater(token=os.environ['API_KEY'], use_context=True)
+TOKEN = os.environ['API_KEY']
+PORT = int(os.environ.get('PORT', '8443'))
+
+updater = Updater(token=TOKEN, use_context=True)
 
 dispatcher = updater.dispatcher
 
@@ -72,5 +75,8 @@ dispatcher.add_handler(unknown_handler)
 
 
 # Start/Stop Bot
-updater.start_polling()
+updater.start_webhook(listen="0.0.0.0",
+                      port=PORT,
+                      url_path=TOKEN,
+                      webhook_url="https://groupify-orbital.herokuapp.com/" + TOKEN)
 updater.idle()
