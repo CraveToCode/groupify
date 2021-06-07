@@ -1,7 +1,6 @@
 # Main file to initialize bot from
 
 from telegram import Update
-import Key
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 import logging
 from Scheduler import conv_handler_meetup
@@ -9,7 +8,7 @@ from Organiser import conv_handler_organiser
 from BillSplitter import conv_handler_split
 
 # API Token
-updater = Updater(token=Key.API_KEY, use_context=True)
+updater = Updater(token=API_KEY, use_context=True)
 
 dispatcher = updater.dispatcher
 
