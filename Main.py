@@ -36,20 +36,17 @@ dispatcher.add_handler(start_handler)
 
 # Join Command
 def join(update, context):
-    try:
-        new_user = f"""
-        INSERT INTO users VALUES
-        (DEFAULT, \"{update.effective_user.id}\");
-        """
-        connection = Database.create_db_connection("us-cdbr-east-04.cleardb.com", "bea2e6c2784c72", "a0c7ca66",
-                                                   "heroku_2b5704fd7eefb53")
-        Database.execute_query(connection, new_user)
+    new_user = f"""
+    INSERT INTO users VALUES
+    (DEFAULT, \"{update.effective_user.id}\")
+    ON DUPLICATE KEY UPDATE user_tele_id = \"{update.effective_user.id}\";
+    """
+    connection = Database.create_db_connection("us-cdbr-east-04.cleardb.com", "bea2e6c2784c72", "a0c7ca66",
+                                               "heroku_2b5704fd7eefb53")
+    Database.execute_query(connection, new_user)
 
-        context.bot.send_message(chat_id=update.effective_chat.id, text=
-        "Great! Events created by users will have you listed as a potential participant from now on.")
-    except:
-        context.bot.send_message(chat_id=update.effective_chat.id, text=
-        "You have already been previously added as a potential participant for events created by users.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
+    "Great! Events created by users will have you listed as a potential participant from now on.")
 
 
 join_handler = CommandHandler('join', join)
