@@ -4,6 +4,7 @@ from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 import logging
 import os
+import Database
 from Scheduler import conv_handler_meetup
 from Organiser import conv_handler_organiser
 from BillSplitter import conv_handler_split
@@ -33,16 +34,39 @@ start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
 
 
+# Join Command
+def join(update, context):
+    try:
+        new_user = f"""
+        INSERT INTO users VALUES
+        (DEFAULT, \"{update.effective_user.id}\");
+        """
+        connection = Database.create_db_connection("us-cdbr-east-04.cleardb.com", "bea2e6c2784c72", "a0c7ca66",
+                                                   "heroku_2b5704fd7eefb53")
+        Database.execute_query(connection, new_user)
+
+        context.bot.send_message(chat_id=update.effective_chat.id, text=
+        "Great! Events created by users will have you listed as a potential participant from now on.")
+    except:
+        print("you suck")
+
+
+join_handler = CommandHandler('join', join)
+dispatcher.add_handler(join_handler)
+
 # Help Command
 help_msg = "GroupifyBot supports 3 features: Meetup-Scheduler, Bill Splitter, Event Organiser." \
            "\n \n" \
-           "Type /meetup to start a new meetup event. This will output the best time for all your friends to meetup," \
+           "*Important*: Please type */join* if you wish to be considered as a potential participant of the events " \
+           "created through this bot." \
+           "\n \n" \
+           "Type */meetup* to start a new meetup event. This will output the best time for all your friends to meetup," \
            "along with the best location." \
            "\n \n" \
-           "Type /split to start a new bill to be split. This will output the exact amount each person will have to " \
+           "Type */split* to start a new bill to be split. This will output the exact amount each person will have to " \
            "pay you." \
            "\n \n" \
-           "Type /organise to start a new event organiser. The event organiser will help you plan your day and " \
+           "Type */organise* to start a new event organiser. The event organiser will help you plan your day and " \
            "display the activities for the day chronologically. It even allows participants to propose activities" \
            "that others can then bid on."
 

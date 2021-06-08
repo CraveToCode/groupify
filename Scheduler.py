@@ -2,6 +2,7 @@ import telegram
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
 import logging
+import Database
 
 TITLE, DURATION, TIMEFRAME = range(3)
 logger = logging.getLogger(__name__)
@@ -21,7 +22,9 @@ def meetup(update: Update, context: CallbackContext) -> int:
 
 def title(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
-    logger.info("Name of event: %s", update.message.text)
+    user_input = update.message.text
+    context.user_data["meetup_title"] = user_input
+    logger.info("Name of event: %s", user_input)
     reply_keyboard = [['1', '2', '3', '4', '5', '6'], ['7', '8', '9', '10', '11', '12'], ['13', '14', '15', '16',
                        '17', '18'], ['19', '20', '21', '22', '23', '24']]
     update.message.reply_text(
@@ -40,7 +43,9 @@ def title(update: Update, context: CallbackContext) -> int:
 
 def duration(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
-    logger.info("Estimated event duration: %s hours", update.message.text)
+    user_input = update.message.text
+    context.user_data["meetup_duration"] = user_input
+    logger.info("Estimated event duration: %s hours", user_input)
     reply_keyboard = [['Today', 'Tomorrow', 'Within the next 3 days'], ['Within a week', 'Within 2 weeks'],
                       ['Within 3 weeks', 'Within a month']]
     update.message.reply_text(
@@ -60,7 +65,22 @@ def duration(update: Update, context: CallbackContext) -> int:
 
 def timeframe(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
-    logger.info("Estimated time till event: %s days", update.message.text)
+    user_input = update.message.text
+    context.user_data["meetup_timeframe"] = user_input
+
+    title_temp: str = context.user_data.get("meetup_title")
+    duration_temp: int = context.user_data.get("meetup_duration")
+    timeframe_temp: str = context.user_data.get("meetup_timeframe")
+    new_meetup_data = f"""
+    INSERT INTO meetups VALUES
+    (DEFAULT, \"{update.effective_chat.id}\", \"{title_temp}\", DEFAULT, \"{duration_temp}\", \"{timeframe_temp}\", 
+    DEFAULT, \"{update.effective_user.id}\", 'F', DEFAULT);
+    """
+    connection = Database.create_db_connection("us-cdbr-east-04.cleardb.com", "bea2e6c2784c72", "a0c7ca66",
+                                               "heroku_2b5704fd7eefb53")
+    Database.execute_query(connection, new_meetup_data)
+
+    logger.info("Estimated time till event: %s", user_input)
     update.message.reply_text(
         "Please select the participants involved in this event."
         )
@@ -82,9 +102,11 @@ def unknown(update: Update, context: CallbackContext):
 conv_handler_meetup = ConversationHandler(
     entry_points=[CommandHandler('meetup', meetup)],
     states={
-        TITLE: [MessageHandler(Filters.text & ~Filters.command, title)],
+        TITLE: [MessageHandler(Filters.text & ~Filters.command, title, pass_user_data=True)],
         DURATION: [MessageHandler(Filters.text & ~Filters.command, duration)],
         TIMEFRAME: [MessageHandler(Filters.text & ~Filters.command, timeframe)]
     },
     fallbacks=[CommandHandler('cancel', cancel), CommandHandler('unknown', unknown)]
 )
+
+
