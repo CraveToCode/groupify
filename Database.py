@@ -1,7 +1,6 @@
 import mysql.connector, Key
 from mysql.connector import Error
 
-# pw = Key.pw
 db_host = "us-cdbr-east-04.cleardb.com"
 db_username = "bea2e6c2784c72"
 db_name = "heroku_2b5704fd7eefb53"
