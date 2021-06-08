@@ -48,7 +48,8 @@ def join(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text=
         "Great! Events created by users will have you listed as a potential participant from now on.")
     except:
-        print("you suck")
+        context.bot.send_message(chat_id=update.effective_chat.id, text=
+        "You have already been previously added as a potential participant for events created by users.")
 
 
 join_handler = CommandHandler('join', join)
