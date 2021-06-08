@@ -1,4 +1,4 @@
-import mysql.connector, Key
+import mysql.connector
 from mysql.connector import Error
 
 db_host = "us-cdbr-east-04.cleardb.com"
