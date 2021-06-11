@@ -36,14 +36,15 @@ dispatcher.add_handler(start_handler)
 
 # Join Command
 def join(update, context):
-    # new_user = f"""
-    # INSERT INTO users VALUES
-    # (DEFAULT, \"{update.effective_user.id}\")
-    # ON DUPLICATE KEY UPDATE user_tele_id = \"{update.effective_user.id}\";
-    # """
-    # connection = Database.create_db_connection("us-cdbr-east-04.cleardb.com", "bea2e6c2784c72", "a0c7ca66",
-    #                                            "heroku_2b5704fd7eefb53")
-    # Database.execute_query(connection, new_user)
+    # Database insertion of new user
+    collection = Database.db.users
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+    new_user = {
+        'user_tele_id': user_id,
+        'chat_id': chat_id
+    }
+    collection.replace_one({'user_tele_id': user_id, 'chat_id': chat_id}, new_user, upsert=True)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=
     "Great! Events created by users will have you listed as a potential participant from now on.")
