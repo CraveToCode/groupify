@@ -54,22 +54,28 @@ def join(update, context):
     collection_users.replace_one({'user_tele_id': user_id, 'chat_id': chat_id}, new_user, upsert=True)
 
     # Add user to user_details database
-    existing_num_of_entries = collection_details.count({'user_tele_id': user_id})
-    if existing_num_of_entries == 0:
-        new_detail = {
-            'user_tele_id': user_id,
-            'username': user_username,
-            'channel_count': 1
-        }
-        collection_details.insertOne(new_detail)
-    else:
-        channel_count = collection_details.find({'user_tele_id': user_id})['channel_count'] + 1
-        new_detail = {
-            'user_tele_id': user_id,
-            'username': user_username,
-            'channel_count': channel_count
-        }
-        collection_details.replace_one({'user_tele_id': user_id}, new_detail, upsert=True)
+    new_detail = {
+        'user_tele_id': user_id,
+        'username': user_username,
+        '$inc': {'channel_count': 1}
+    }
+    collection_details.find_one_and_update({'user_tele_id': user_id}, new_detail, upsert=True)
+    # existing_num_of_entries = collection_details.count_documents({'user_tele_id': user_id})
+    # if existing_num_of_entries == 0:
+    #     new_detail = {
+    #         'user_tele_id': user_id,
+    #         'username': user_username,
+    #         'channel_count': 1
+    #     }
+    #     collection_details.insert_one(new_detail)
+    # else:
+    #     channel_count = collection_details.find({'user_tele_id': user_id})['channel_count'] + 1
+    #     new_detail = {
+    #         'user_tele_id': user_id,
+    #         'username': user_username,
+    #         'channel_count': channel_count
+    #     }
+    #     collection_details.replace_one({'user_tele_id': user_id}, new_detail, upsert=True)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=
     "Great! Events created by users will have you listed as a potential participant from now on.")
