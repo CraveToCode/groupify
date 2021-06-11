@@ -3,8 +3,9 @@ from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
 import logging
 import Database
+from math import sqrt
 
-TITLE, DURATION, TIMEFRAME, PARTICIPANTS = range(4)
+TITLE, DURATION, TIMEFRAME, PARTICIPANTS, NO_PARTICIPANTS = range(5)
 logger = logging.getLogger(__name__)
 
 
@@ -69,7 +70,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     context.user_data["meetup_timeframe"] = user_input
 
     # Database insertion of new meetup
-    collection = Database.db.meetups
+    collection_meetups = Database.db.meetups
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
     timeframe_temp: str = context.user_data.get("meetup_timeframe")
@@ -84,27 +85,64 @@ def timeframe(update: Update, context: CallbackContext) -> int:
         'state': False,
         'output time': None
     }
-    collection.insert_one(new_meetup_data)
+    collection_meetups.insert_one(new_meetup_data)
+
+    # Store list of finalized participants
+    participants_final = []
+    context.user_data["participants_final"] = participants_final
+
+    # Retrieve possible participants
+    chat_id = update.effective_chat.id
+    collection_users = Database.db.users
+    mongo_participant_list = collection_users.find({'chat_id': chat_id})
+    participant_list = []
+    for participant in mongo_participant_list:
+        participant_list.append(participant["user_tele_id"])
+    context.user_data["participant_list"] = participant_list
+
+    # Participant Keyboard
+    num_of_participants = len(participant_list)
+    n = sqrt(num_of_participants)
+    reply_keyboard = [participant_list[i:i + n] for i in range(0, len(participant_list), n)]
 
     logger.info("Estimated time till event: %s", user_input)
     update.message.reply_text(
-        "Please select the participants involved in this event.")
+        "Please select the participants involved in this event.",
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, selective=True)
+    )
 
     return PARTICIPANTS
 
 
 def participants(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
-    user_input = update.message.text
     chat_id = update.effective_chat.id
+    user_input = update.message.text
 
-    collection = Database.db.users
-    mongo_participant_list = collection.find({'chat_id': chat_id})
-    participant_list = []
-    for participant in mongo_participant_list:
-        print(participant["user_tele_id"])
-        participant_list.append(participant["user_tele_id"])
+    # Add participant entered previously
+    participant_list = context.user_data.get("participant_list")
+    participants_final = context.user_data.get("participants_final")
+    participants_final.append(int(user_input))
+    context.user_data["participants_final"] = participants_final
+
+    # Participant Keyboard
+    num_of_participants = len(participant_list)
+    n = sqrt(num_of_participants)
+    reply_keyboard = [participant_list[i:i + n] for i in range(0, len(participant_list), n)]
+
     logger.info("Participant list: %s", participant_list)
+    update.message.reply_text(
+        "Would you like to add anyone else? If not, please do /done",
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, selective=True)
+    )
+
+    return PARTICIPANTS
+
+
+def no_participants(update: Update, context: CallbackContext) -> int:
+    # user = update.message.from_user
+    print(context.user_data.get("participants_final"))
+    logger.info("All participants have been added.")
     update.message.reply_text(
         "Awesome! All participants please input your available timeslots.")
 
@@ -128,7 +166,8 @@ conv_handler_meetup = ConversationHandler(
         TITLE: [MessageHandler(Filters.text & ~Filters.command, title)],
         DURATION: [MessageHandler(Filters.text & ~Filters.command, duration)],
         TIMEFRAME: [MessageHandler(Filters.text & ~Filters.command, timeframe)],
-        PARTICIPANTS: [MessageHandler(Filters.text & ~Filters.command, participants)]
+        PARTICIPANTS: [MessageHandler(Filters.text & ~Filters.command, participants),
+                       CommandHandler('done', no_participants)]
     },
     fallbacks=[CommandHandler('cancel', cancel), CommandHandler('unknown', unknown)]
 )
