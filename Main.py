@@ -42,7 +42,7 @@ def join(update, context):
     chat_id = update.effective_chat.id
     new_user = {
         'user_tele_id': user_id,
-        'chat_id': update.effective_chat.id
+        'chat_id': chat_id
     }
     collection.replace_one({'user_tele_id': user_id, 'chat_id': chat_id}, new_user, upsert=True)
 

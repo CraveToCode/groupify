@@ -68,7 +68,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     user_input = update.message.text
     context.user_data["meetup_timeframe"] = user_input
 
-    # Database insertion of new meetup session
+    # Database insertion of new meetup
     collection = Database.db.meetups
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
