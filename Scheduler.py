@@ -100,8 +100,7 @@ def participants(update: Update, context: CallbackContext) -> int:
 
     collection = Database.db.users
     participant_list = collection.find({'chat_id': chat_id})
-    print(participant_list)
-    logger.info("Participant list: %s", user_input)
+    logger.info("Participant list: %s", participant_list)
     update.message.reply_text(
         "Awesome! All participants please input your available timeslots.")
 
