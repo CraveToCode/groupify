@@ -119,7 +119,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 def participants(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
     chat_id = update.effective_chat.id
-    user_input = update.message.text
+    user_input = int(update.message.text)
 
     # Add participant entered previously
     participant_pool = context.user_data.get("participant_pool")
