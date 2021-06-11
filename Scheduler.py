@@ -101,7 +101,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     participant_pool = []                                                   # list of potential usernames
     for participant in mongo_participant_pool:
         user_id = participant['user_tele_id']
-        username = collection_details.find({'user_tele_id': user_id})['username']
+        username = collection_details.find_one({'user_tele_id': user_id})['username']
         participant_pool.append(username)
     context.user_data["participant_pool"] = participant_pool
     print("Initial participant final list: ")
