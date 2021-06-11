@@ -68,22 +68,27 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     user_input = update.message.text
     context.user_data["meetup_timeframe"] = user_input
 
+    # Database insertion
+    collection = Database.db.meetups
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
     timeframe_temp: str = context.user_data.get("meetup_timeframe")
-    new_meetup_data = f"""
-    INSERT INTO meetups VALUES
-    (DEFAULT, \"{update.effective_chat.id}\", \"{title_temp}\", DEFAULT, \"{duration_temp}\", \"{timeframe_temp}\", 
-    DEFAULT, \"{update.effective_user.id}\", 'F', DEFAULT);
-    """
-    connection = Database.create_db_connection("us-cdbr-east-04.cleardb.com", "bea2e6c2784c72", "a0c7ca66",
-                                               "heroku_2b5704fd7eefb53")
-    Database.execute_query(connection, new_meetup_data)
+
+    new_meetup_data = {
+        'chat_id': {update.effective_chat.id},
+        'meetup_title': {title_temp},
+        'duration': {duration_temp},
+        'timeframe': {timeframe_temp},
+        'part_timetable_dict': None,
+        'creator': {update.effective_user.id},
+        'state': False,
+        'output time': None
+    }
+    collection.insert_one(new_meetup_data)
 
     logger.info("Estimated time till event: %s", user_input)
     update.message.reply_text(
-        "Please select the participants involved in this event."
-        )
+        "Please select the participants involved in this event.")
 
     return ConversationHandler.END
 
