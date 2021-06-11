@@ -55,7 +55,7 @@ join_handler = CommandHandler('join', join)
 dispatcher.add_handler(join_handler)
 
 # Help Command
-help_msg = "GroupifyBot supports 3 features: Meetup-Scheduler, Bill Splitter, Event Organiser." \
+help_msg = "GroupifyBot supports 3 features: Meetup Scheduler, Bill Splitter, Event Organiser." \
            "\n \n" \
            "*Important*: Please type */join* if you wish to be considered as a potential participant of the events " \
            "created through this bot." \
