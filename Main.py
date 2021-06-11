@@ -71,7 +71,7 @@ help_msg = "GroupifyBot supports 3 features: Meetup-Scheduler, Bill Splitter, Ev
 
 
 def help(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=help_msg)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=help_msg, parse_mode=telegram.ParseMode.MARKDOWN_V2)
 
 
 help_handler = CommandHandler('help', help)
