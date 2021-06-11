@@ -110,7 +110,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     logger.info("Estimated time till event: %s", user_input)
     update.message.reply_text(
         "Please select the participants involved in this event.",
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, selective=True)
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True,resize_keyboard=True, selective=True)
     )
 
     return PARTICIPANTS
@@ -141,7 +141,7 @@ def participants(update: Update, context: CallbackContext) -> int:
     logger.info("Participant list: %s", participants_final)
     update.message.reply_text(
         "Would you like to add anyone else? If not, please do /done",
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, selective=True)
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True,resize_keyboard=True, selective=True)
     )
 
     return PARTICIPANTS
