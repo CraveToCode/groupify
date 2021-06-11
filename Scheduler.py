@@ -102,7 +102,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 
     # Participant Keyboard
     num_of_participants = len(participant_list)
-    n = sqrt(num_of_participants)
+    n: int = int(sqrt(num_of_participants))
     reply_keyboard = [participant_list[i:i + n] for i in range(0, len(participant_list), n)]
 
     logger.info("Estimated time till event: %s", user_input)
@@ -127,7 +127,7 @@ def participants(update: Update, context: CallbackContext) -> int:
 
     # Participant Keyboard
     num_of_participants = len(participant_list)
-    n = sqrt(num_of_participants)
+    n: int = int(sqrt(num_of_participants))
     reply_keyboard = [participant_list[i:i + n] for i in range(0, len(participant_list), n)]
 
     logger.info("Participant list: %s", participant_list)
