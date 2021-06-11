@@ -4,7 +4,7 @@ from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHa
 import logging
 import Database
 
-TITLE, DURATION, TIMEFRAME = range(3)
+TITLE, DURATION, TIMEFRAME, PARTICIPANTS = range(4)
 logger = logging.getLogger(__name__)
 
 
@@ -90,6 +90,21 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     update.message.reply_text(
         "Please select the participants involved in this event.")
 
+    return PARTICIPANTS
+
+
+def participants(update: Update, context: CallbackContext) -> int:
+    # user = update.message.from_user
+    user_input = update.message.text
+    chat_id = update.effective_chat.id
+
+    collection = Database.db.users
+    participant_list = collection.find({'chat_id': chat_id})
+    print(participant_list)
+    logger.info("Participant list: %s", user_input)
+    update.message.reply_text(
+        "Awesome! All participants please input your available timeslots.")
+
     return ConversationHandler.END
 
 
@@ -107,9 +122,10 @@ def unknown(update: Update, context: CallbackContext):
 conv_handler_meetup = ConversationHandler(
     entry_points=[CommandHandler('meetup', meetup)],
     states={
-        TITLE: [MessageHandler(Filters.text & ~Filters.command, title, pass_user_data=True)],
+        TITLE: [MessageHandler(Filters.text & ~Filters.command, title)],
         DURATION: [MessageHandler(Filters.text & ~Filters.command, duration)],
-        TIMEFRAME: [MessageHandler(Filters.text & ~Filters.command, timeframe)]
+        TIMEFRAME: [MessageHandler(Filters.text & ~Filters.command, timeframe)],
+        PARTICIPANTS: [MessageHandler(Filters.text & ~Filters.command, participants)]
     },
     fallbacks=[CommandHandler('cancel', cancel), CommandHandler('unknown', unknown)]
 )
