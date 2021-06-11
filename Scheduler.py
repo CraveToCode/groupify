@@ -3,7 +3,7 @@ from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext
 import logging
 import Database
-from math import sqrt
+from math import sqrt, ceil
 
 # Database
 collection_users = Database.db.users
@@ -109,7 +109,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 
     # Participant Keyboard
     num_of_participants = len(participant_pool)
-    n: int = int(sqrt(num_of_participants))
+    n: int = ceil(sqrt(num_of_participants))
     reply_keyboard = [participant_pool[i:i + n] for i in range(0, len(participant_pool), n)]
 
     logger.info("Estimated time till event: %s", user_input)
