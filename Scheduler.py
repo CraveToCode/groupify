@@ -94,17 +94,18 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     # Retrieve possible participants
     chat_id = update.effective_chat.id
     collection_users = Database.db.users
-    mongo_participant_list = collection_users.find({'chat_id': chat_id})
-    participant_list = []
-    for participant in mongo_participant_list:
-        participant_list.append(participant["user_tele_id"])
-    context.user_data["participant_list"] = participant_list
+    mongo_participant_pool = collection_users.find({'chat_id': chat_id})
+    participant_pool = []
+    for participant in mongo_participant_pool:
+        participant_pool.append(participant["user_tele_id"])
+    context.user_data["participant_pool"] = participant_pool
+    print("Initial participant final list: ")
     print(participants_final)
 
     # Participant Keyboard
-    num_of_participants = len(participant_list)
+    num_of_participants = len(participant_pool)
     n: int = int(sqrt(num_of_participants))
-    reply_keyboard = [participant_list[i:i + n] for i in range(0, len(participant_list), n)]
+    reply_keyboard = [participant_pool[i:i + n] for i in range(0, len(participant_pool), n)]
 
     logger.info("Estimated time till event: %s", user_input)
     update.message.reply_text(
@@ -121,21 +122,22 @@ def participants(update: Update, context: CallbackContext) -> int:
     user_input = update.message.text
 
     # Add participant entered previously
-    participant_list = context.user_data.get("participant_list")
+    participant_pool = context.user_data.get("participant_pool")
     participants_final = context.user_data.get("participants_final")
     if user_input not in participants_final:
         participants_final.append(int(user_input))
     else:
         participants_final.remove(int(user_input))
+    print("Updated participant list: ")
     print(participants_final)
     context.user_data["participants_final"] = participants_final
 
     # Participant Keyboard
-    num_of_participants = len(participant_list)
+    num_of_participants = len(participant_pool)
     n: int = int(sqrt(num_of_participants))
-    reply_keyboard = [participant_list[i:i + n] for i in range(0, len(participant_list), n)]
+    reply_keyboard = [participant_pool[i:i + n] for i in range(0, len(participant_pool), n)]
 
-    logger.info("Participant list: %s", participant_list)
+    logger.info("Participant list: %s", participants_final)
     update.message.reply_text(
         "Would you like to add anyone else? If not, please do /done",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, selective=True)
@@ -146,6 +148,7 @@ def participants(update: Update, context: CallbackContext) -> int:
 
 def no_participants(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
+    print("Final List of Participants: ")
     print(context.user_data.get("participants_final"))
     logger.info("All participants have been added.")
     update.message.reply_text(
