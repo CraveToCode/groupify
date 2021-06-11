@@ -125,9 +125,10 @@ def participants(update: Update, context: CallbackContext) -> int:
     participant_pool = context.user_data.get("participant_pool")
     participants_final = context.user_data.get("participants_final")
     if user_input not in participants_final:
-        participants_final.append(int(user_input))
+        participants_final.append(user_input)
     else:
-        participants_final.remove(int(user_input))
+        participants_final.remove(user_input)
+
     print("Updated participant list: ")
     print(participants_final)
     context.user_data["participants_final"] = participants_final
