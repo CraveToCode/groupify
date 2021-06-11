@@ -99,6 +99,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     for participant in mongo_participant_list:
         participant_list.append(participant["user_tele_id"])
     context.user_data["participant_list"] = participant_list
+    print(participants_final)
 
     # Participant Keyboard
     num_of_participants = len(participant_list)
@@ -122,7 +123,11 @@ def participants(update: Update, context: CallbackContext) -> int:
     # Add participant entered previously
     participant_list = context.user_data.get("participant_list")
     participants_final = context.user_data.get("participants_final")
-    participants_final.append(int(user_input))
+    if user_input not in participants_final:
+        participants_final.append(int(user_input))
+    else:
+        participants_final.remove(int(user_input))
+    print(participants_final)
     context.user_data["participants_final"] = participants_final
 
     # Participant Keyboard
