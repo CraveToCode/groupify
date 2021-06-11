@@ -22,6 +22,10 @@ dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
+# Database
+collection_users = Database.db.users
+collection_details = Database.db.user_details
+
 
 # Start Command
 def start(update, context):
@@ -38,14 +42,34 @@ dispatcher.add_handler(start_handler)
 # Join Command
 def join(update, context):
     # Database insertion of new user
-    collection = Database.db.users
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
+    user_username = update.message.from_user.username
+
+    # Add user to users database
     new_user = {
         'user_tele_id': user_id,
         'chat_id': chat_id
     }
-    collection.replace_one({'user_tele_id': user_id, 'chat_id': chat_id}, new_user, upsert=True)
+    collection_users.replace_one({'user_tele_id': user_id, 'chat_id': chat_id}, new_user, upsert=True)
+
+    # Add user to user_details database
+    existing_num_of_entries = collection_details.count({'user_tele_id': user_id})
+    if existing_num_of_entries == 0:
+        new_detail = {
+            'user_tele_id': user_id,
+            'username': user_username,
+            'channel_count': 1
+        }
+        collection_details.insertOne(new_detail)
+    else:
+        channel_count = collection_details.find({'user_tele_id': user_id})['channel_count'] + 1
+        new_detail = {
+            'user_tele_id': user_id,
+            'username': user_username,
+            'channel_count': channel_count
+        }
+        collection_details.replace_one({'user_tele_id': user_id}, new_detail, upsert=True)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=
     "Great! Events created by users will have you listed as a potential participant from now on.")

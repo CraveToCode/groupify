@@ -5,6 +5,10 @@ import logging
 import Database
 from math import sqrt
 
+# Database
+collection_users = Database.db.users
+collection_details = Database.db.user_details
+
 TITLE, DURATION, TIMEFRAME, PARTICIPANTS, NO_PARTICIPANTS = range(5)
 logger = logging.getLogger(__name__)
 
@@ -69,7 +73,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     user_input = update.message.text
     context.user_data["meetup_timeframe"] = user_input
 
-    # Database insertion of new meetup
+    # Database insertion of new meetup (to be brought to last state)
     collection_meetups = Database.db.meetups
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
@@ -93,11 +97,12 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 
     # Retrieve possible participants
     chat_id = update.effective_chat.id
-    collection_users = Database.db.users
-    mongo_participant_pool = collection_users.find({'chat_id': chat_id})
-    participant_pool = []
+    mongo_participant_pool = collection_users.find({'chat_id': chat_id})    # list of data cursors from mongodb
+    participant_pool = []                                                   # list of potential usernames
     for participant in mongo_participant_pool:
-        participant_pool.append(participant["user_tele_id"])
+        user_id = participant['user_tele_id']
+        username = collection_details.find({'user_tele_id': user_id})['username']
+        participant_pool.append(username)
     context.user_data["participant_pool"] = participant_pool
     print("Initial participant final list: ")
     print(participants_final)
@@ -110,7 +115,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     logger.info("Estimated time till event: %s", user_input)
     update.message.reply_text(
         "Please select the participants involved in this event.",
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True,resize_keyboard=True, selective=True)
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True)
     )
 
     return PARTICIPANTS
@@ -119,7 +124,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 def participants(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
     chat_id = update.effective_chat.id
-    user_input = int(update.message.text)
+    user_input = update.message.text
 
     # Add participant entered previously
     participant_pool = context.user_data.get("participant_pool")
@@ -149,9 +154,10 @@ def participants(update: Update, context: CallbackContext) -> int:
 
 def no_participants(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
+    participants_final = context.user_data.get("participants_final")
     print("Final List of Participants: ")
-    print(context.user_data.get("participants_final"))
-    logger.info("All participants have been added.")
+    print(participants_final)
+    logger.info("All participants have been added. Final list: %s", participants_final)
     update.message.reply_text(
         "Awesome! All participants please input your available timeslots.")
 
