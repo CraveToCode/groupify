@@ -75,12 +75,12 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     timeframe_temp: str = context.user_data.get("meetup_timeframe")
 
     new_meetup_data = {
-        'chat_id': f"\"{update.effective_chat.id}\"",
-        'meetup_title': f"\"{title_temp}\"",
-        'duration': f"\"{duration_temp}\"",
-        'timeframe': f"\"{timeframe_temp}\"",
+        'chat_id': {update.effective_chat.id},
+        'meetup_title': f"{title_temp}",
+        'duration': {duration_temp},
+        'timeframe': f"{timeframe_temp}",
         'part_timetable_dict': None,
-        'creator': f"\"{update.effective_user.id}\"",
+        'creator': {update.effective_user.id},
         'state': False,
         'output time': None
     }
