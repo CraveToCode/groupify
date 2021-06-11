@@ -77,7 +77,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     new_meetup_data = {
         'chat_id': update.effective_chat.id,
         'meetup_title': title_temp,
-        'duration': duration_temp,
+        'duration': int(duration_temp),
         'timeframe': timeframe_temp,
         'part_timetable_dict': None,
         'creator': update.effective_user.id,
@@ -99,8 +99,10 @@ def participants(update: Update, context: CallbackContext) -> int:
     chat_id = update.effective_chat.id
 
     collection = Database.db.users
-    participant_list = collection.find({'chat_id': chat_id})
-    print(participant_list)
+    mongo_participant_list = collection.find({'chat_id': chat_id})
+    participant_list = []
+    for participant in participant_list:
+        participant_list.append(participant["user_id"])
     logger.info("Participant list: %s", participant_list)
     update.message.reply_text(
         "Awesome! All participants please input your available timeslots.")
