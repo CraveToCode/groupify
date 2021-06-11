@@ -104,8 +104,6 @@ def timeframe(update: Update, context: CallbackContext) -> int:
         username = collection_details.find_one({'user_tele_id': user_id})['username']
         participant_pool.append(username)
     context.user_data["participant_pool"] = participant_pool
-    print("Initial participant final list: ")
-    print(participants_final)
 
     # Participant Keyboard
     num_of_participants = len(participant_pool)
@@ -134,8 +132,6 @@ def participants(update: Update, context: CallbackContext) -> int:
     else:
         participants_final.remove(user_input)
 
-    print("Updated participant list: ")
-    print(participants_final)
     context.user_data["participants_final"] = participants_final
 
     # Participant Keyboard
@@ -155,8 +151,6 @@ def participants(update: Update, context: CallbackContext) -> int:
 def no_participants(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
     participants_final = context.user_data.get("participants_final")
-    print("Final List of Participants: ")
-    print(participants_final)
     logger.info("All participants have been added. Final list: %s", participants_final)
     update.message.reply_text(
         "Awesome! All participants please input your available timeslots.")

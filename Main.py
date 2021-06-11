@@ -53,10 +53,7 @@ def join(update, context):
     }
     collection_users.replace_one({'user_tele_id': user_id, 'chat_id': chat_id}, new_user, upsert=True)
 
-    # Add user to user_details database
-
-    # collection_users.replace_one({'user_tele_id': user_id}, new_detail, upsert=True)
-    # collection_details.find_one_and_update({'user_tele_id': user_id}, {'$inc': {'channel_count': 1}}, upsert=True)
+    # Add user to user_details database  (need to update channel_count)
     existing_num_of_entries = collection_details.count_documents({'user_tele_id': user_id})
     if existing_num_of_entries == 0:
         new_detail = {
