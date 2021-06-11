@@ -103,7 +103,7 @@ def participants(update: Update, context: CallbackContext) -> int:
     participant_list = []
     for participant in mongo_participant_list:
         print(participant["user_id"])
-        participant_list.append(participant["user_id"])
+        participant_list.append(participant["user_tele_id"])
     logger.info("Participant list: %s", participant_list)
     update.message.reply_text(
         "Awesome! All participants please input your available timeslots.")
