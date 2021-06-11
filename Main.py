@@ -1,6 +1,6 @@
 # Main file to initialize bot from
 
-0from telegram import Update
+from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 import telegram
 import logging
