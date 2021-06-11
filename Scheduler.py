@@ -101,7 +101,7 @@ def participants(update: Update, context: CallbackContext) -> int:
     collection = Database.db.users
     mongo_participant_list = collection.find({'chat_id': chat_id})
     participant_list = []
-    for participant in participant_list:
+    for participant in mongo_participant_list:
         print(participant["user_id"])
         participant_list.append(participant["user_id"])
     logger.info("Participant list: %s", participant_list)
