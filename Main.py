@@ -64,8 +64,8 @@ def join(update, context):
     else:
         collection_details.update({'user_tele_id': user_id}, {'$inc': {'channel_count': 1}})
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text=
-    "Great! Events created by users will have you listed as a potential participant from now on.")
+    update.message.reply_text(
+        "Great! Events created by users will have you listed as a potential participant from now on.")
 
 
 join_handler = CommandHandler('join', join)
@@ -79,6 +79,10 @@ def leave(update, context):
     collection_users.find_one_and_delete({'user_tele_id': user_id, 'chat_id': chat_id})
     # TODO need to implement deletion from collection_details
 
+    update.message.reply_text(
+        "You have been removed from being chosen as a potential participant in future events that are created"
+        "in this channel.")
+
 
 leave_handler = CommandHandler('leave', leave)
 dispatcher.add_handler(leave_handler)
@@ -88,7 +92,8 @@ dispatcher.add_handler(leave_handler)
 help_msg = "GroupifyBot supports 3 features: Meetup Scheduler, Bill Splitter, Event Organiser\." \
            "\n \n" \
            "*Important*: Please type */join* if you wish to be considered as a potential participant of the events " \
-           "created through this bot\." \
+           "created through this bot\. You have the option of doing */leave* afterwards to stop being" \
+           "considered as a participant." \
            "\n \n" \
            "Type */meetup* to start a new meetup event\. This will output the best time for all your friends to " \
            "meetup, along with the best location\." \
