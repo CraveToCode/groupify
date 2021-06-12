@@ -114,8 +114,9 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 
     participant_pool_listed = '\n'.join(participant_pool)  # stringify name list
     update.message.reply_text(
-        f"Please select the participants involved in this event. You can tap the same person again to remove them."
-        f"Select DONE if you are done selecting participants."
+        f"Please select the participants involved in this event."
+        f"\nYou can tap the same person again to remove them."
+        f"\nSelect DONE if you are done selecting participants."
         f"\n \n"
         f"Participant List: "
         f"\n{participant_pool_listed}",
@@ -144,7 +145,7 @@ def participants(update: Update, context: CallbackContext) -> int:
         context.user_data["participant_pool"] = participant_pool                                # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                   # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been added. Would you like to add/remove anyone else? If not, please select DONE."
+            text=f"{user_input} has been added.\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Participant list:"
                  f"\n{participant_pool_listed}",
@@ -156,7 +157,7 @@ def participants(update: Update, context: CallbackContext) -> int:
         context.user_data["participant_pool"] = participant_pool                                  # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been removed. Would you like to add/remove anyone else? If not, please select DONE."
+            text=f"{user_input} has been removed.\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Participant list:"
                  f"\n{participant_pool_listed}",
