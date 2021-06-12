@@ -121,7 +121,7 @@ def participants(update: Update, context: CallbackContext) -> int:
     query.answer()
     # user = update.message.from_user
     chat_id = update.effective_chat.id
-    user_input = query.message
+    user_input = query.message.text
 
     # Add participant entered previously
     participant_pool = context.user_data.get("participant_pool")
@@ -138,7 +138,7 @@ def participants(update: Update, context: CallbackContext) -> int:
 
     logger.info("Participant list: %s", participants_final)
     query.edit_message_text(
-        text="Would you like to add anyone else? If not, please select DONE",
+        text=f"{user_input} has been added. Would you like to add anyone else? If not, please select DONE",
         reply_markup=InlineKeyboardMarkup(reply_keyboard)
     )
 
