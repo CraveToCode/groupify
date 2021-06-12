@@ -121,7 +121,7 @@ def participants(update: Update, context: CallbackContext) -> int:
     query.answer()
     # user = update.message.from_user
     chat_id = update.effective_chat.id
-    user_input = query.data
+    user_input = query.message
 
     # Add participant entered previously
     participant_pool = context.user_data.get("participant_pool")
