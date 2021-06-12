@@ -1,3 +1,4 @@
+import pymongo
 import telegram
 from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext, \
@@ -5,6 +6,7 @@ from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHa
 import logging
 import Database
 from math import sqrt, ceil
+from HelperFunctions import overwrite
 
 # Database
 collection_users = Database.db.users
@@ -90,12 +92,13 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 
     # Retrieve possible participants
     chat_id = update.effective_chat.id
-    mongo_participant_pool = collection_users.find({'chat_id': chat_id})    # list of data cursors from mongodb
-    participant_pool = []                                                   # list of potential usernames
+    mongo_participant_pool = collection_users.find({'chat_id': chat_id})     # list of data cursors from mongodb
+    participant_pool = []                                                    # list of potential usernames
     for participant in mongo_participant_pool:
         user_id = participant['user_tele_id']
         username = collection_details.find_one({'user_tele_id': user_id})['username']
         participant_pool.append(username)
+    participant_pool.sort()
     context.user_data["participant_pool"] = participant_pool
 
     # Participant Keyboard
@@ -108,8 +111,14 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     context.user_data["participant_keyboard"] = reply_keyboard
 
     logger.info("Estimated time till event: %s", user_input)
+
+    participant_pool_listed = '\n'.join(participant_pool)  # stringify name list
     update.message.reply_text(
-        "Please select the participants involved in this event. Select DONE if you are done.",
+        f"Please select the participants involved in this event. You can tap the same person again to remove them."
+        f"Select DONE if you are done selecting participants."
+        f"\n \n"
+        f"Participant List: "
+        f"\n{participant_pool_listed}",
         reply_markup=InlineKeyboardMarkup(reply_keyboard)
     )
 
@@ -127,17 +136,30 @@ def participants(update: Update, context: CallbackContext) -> int:
     reply_keyboard = context.user_data.get("participant_keyboard")
 
     # Add participant entered previously
+    participant_pool = context.user_data.get("participant_pool")
     participants_final = context.user_data.get("participants_final")
     if user_input not in participants_final:
-        participants_final.append(user_input)
+        participants_final.append(user_input)                                                   # add user to final list
+        participant_pool = overwrite(participant_pool, user_input, user_input + " \U00002714")  # add emoji to name list
+        context.user_data["participant_pool"] = participant_pool                                # save new name list
+        participant_pool_listed = '\n'.join(participant_pool)                                   # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been added. Would you like to add anyone else? If not, please select DONE",
+            text=f"{user_input} has been added. Would you like to add/remove anyone else? If not, please select DONE."
+                 f"\n \n"
+                 f"Participant list:"
+                 f"\n{participant_pool_listed}",
             reply_markup=InlineKeyboardMarkup(reply_keyboard)
         )
     else:
-        participants_final.remove(user_input)
+        participants_final.remove(user_input)                                                     # remove user
+        participant_pool = overwrite(participant_pool, user_input + " \U00002714", user_input, )  # remove emoji
+        context.user_data["participant_pool"] = participant_pool                                  # save new name list
+        participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been removed. Would you like to add anyone else? If not, please select DONE",
+            text=f"{user_input} has been removed. Would you like to add/remove anyone else? If not, please select DONE."
+                 f"\n \n"
+                 f"Participant list:"
+                 f"\n{participant_pool_listed}",
             reply_markup=InlineKeyboardMarkup(reply_keyboard)
         )
 
