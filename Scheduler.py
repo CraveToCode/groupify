@@ -130,7 +130,6 @@ def participants(update: Update, context: CallbackContext) -> int:
     query = update.callback_query
     query.answer()
     # user = update.message.from_user
-    chat_id = update.effective_chat.id
     user_input = query.data.split(':')[1]
 
     # Participant Keyboard
@@ -154,7 +153,7 @@ def participants(update: Update, context: CallbackContext) -> int:
         )
     else:
         participants_final.remove(user_input)                                                     # remove user
-        participant_pool = overwrite(participant_pool, user_input + " \U00002714", user_input)  # remove emoji
+        participant_pool = overwrite(participant_pool, user_input + " \U00002714", user_input)    # remove emoji
         context.user_data["participant_pool"] = participant_pool                                  # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
