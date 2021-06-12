@@ -111,8 +111,9 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 
     logger.info("Estimated time till event: %s", user_input)
 
-    # Store participant_pool with emojis
-    context.user_data["participant_pool"] = list(map(lambda x: x + " \U00002b1c", participant_pool))
+    # Add cross emojis to participant_pool and store it
+    participant_pool = list(map(lambda x: x + " \U00002b1c", participant_pool))
+    context.user_data["participant_pool"] = participant_pool
 
     participant_pool_listed = '\n'.join(participant_pool)  # stringify name list
     update.message.reply_text(
@@ -140,8 +141,8 @@ def participants(update: Update, context: CallbackContext) -> int:
     # Add participant entered previously
     participant_pool = context.user_data.get("participant_pool")
     participants_final = context.user_data.get("participants_final")
-    value_unlisted = user_input + " \U00002b1c"                               # user input with blank box
-    value_listed = user_input + " ✅"                                          # user input with check box
+    value_unlisted = user_input + " \U0000274c"                                # user input with cross
+    value_listed = user_input + " \U00002714"                                  # user input with check
     if user_input not in participants_final:
         participants_final.append(user_input)                                                   # add user to final list
         participant_pool = overwrite(participant_pool, value_unlisted, value_listed)            # add check emoji
@@ -157,7 +158,7 @@ def participants(update: Update, context: CallbackContext) -> int:
         )
     else:
         participants_final.remove(user_input)                                                     # remove user
-        participant_pool = overwrite(participant_pool, value_listed, value_unlisted)              # add uncheck emoji
+        participant_pool = overwrite(participant_pool, value_listed, value_unlisted)              # add cross emoji
         context.user_data["participant_pool"] = participant_pool                                  # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
