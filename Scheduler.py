@@ -145,7 +145,8 @@ def participants(update: Update, context: CallbackContext) -> int:
         context.user_data["participant_pool"] = participant_pool                                # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                   # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been added.\nWould you like to add/remove anyone else? If not, please select DONE."
+            text=f"{user_input} has been added."
+                 f"\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Participant list:"
                  f"\n{participant_pool_listed}",
@@ -153,11 +154,12 @@ def participants(update: Update, context: CallbackContext) -> int:
         )
     else:
         participants_final.remove(user_input)                                                     # remove user
-        participant_pool = overwrite(participant_pool, user_input + " \U00002714", user_input, )  # remove emoji
+        participant_pool = overwrite(participant_pool, user_input + " \U00002714", user_input)  # remove emoji
         context.user_data["participant_pool"] = participant_pool                                  # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been removed.\nWould you like to add/remove anyone else? If not, please select DONE."
+            text=f"{user_input} has been removed."
+                 f"\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Participant list:"
                  f"\n{participant_pool_listed}",
