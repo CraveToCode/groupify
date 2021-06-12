@@ -124,7 +124,6 @@ def participants(update: Update, context: CallbackContext) -> int:
     user_input = query.data.split(':')[1]
 
     # Add participant entered previously
-    participant_pool = context.user_data.get("participant_pool")
     participants_final = context.user_data.get("participants_final")
     if user_input not in participants_final:
         participants_final.append(user_input)
