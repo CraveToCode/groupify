@@ -101,7 +101,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     # Participant Keyboard
     num_of_participants = len(participant_pool)
     n: int = ceil(sqrt(num_of_participants))
-    participant_pool_keyboard = list(map(lambda x: InlineKeyboardButton(x,  callback_data=str(CHOOSE)),
+    participant_pool_keyboard = list(map(lambda x: InlineKeyboardButton(x,  callback_data=f"button:{x}"),
                                          participant_pool))
     reply_keyboard = [participant_pool_keyboard[i:i + n] for i in range(0, num_of_participants, n)]
     reply_keyboard.append([InlineKeyboardButton("DONE", callback_data=str(DONE))])
@@ -121,7 +121,7 @@ def participants(update: Update, context: CallbackContext) -> int:
     query.answer()
     # user = update.message.from_user
     chat_id = update.effective_chat.id
-    user_input = query.message.text
+    user_input = query.data.split(':')[1]
 
     # Add participant entered previously
     participant_pool = context.user_data.get("participant_pool")
@@ -173,7 +173,7 @@ conv_handler_meetup = ConversationHandler(
         TITLE: [MessageHandler(Filters.text & ~Filters.command, title)],
         DURATION: [MessageHandler(Filters.text & ~Filters.command, duration)],
         TIMEFRAME: [MessageHandler(Filters.text & ~Filters.command, timeframe)],
-        PARTICIPANTS: [CallbackQueryHandler(participants, pattern='^' + str(CHOOSE) + '$'),
+        PARTICIPANTS: [CallbackQueryHandler(participants, pattern="^button"),
                        CallbackQueryHandler(no_participants, pattern='^' + str(DONE) + '$')
                        ]
     },
