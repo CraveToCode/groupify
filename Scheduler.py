@@ -18,10 +18,6 @@ def meetup(update: Update, context: CallbackContext) -> int:
         "Hi! Welcome to the Meetup Scheduler! Please input the name of your event. "
         "\n"
         "You can /cancel at any time to abort this process.")
-    # context.bot.send_message(chat_id=update.effective_chat.id, text=
-    #            "Hi! Welcome to the Meetup Scheduler! Please input the name of your event. " \
-    #            "\n" \
-    #            "You can /cancel at any time to abort this process.")
     return TITLE
 
 
@@ -38,11 +34,6 @@ def title(update: Update, context: CallbackContext) -> int:
         "Again, you can /cancel at any time to abort this process.",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True),
     )
-    # context.bot.send_message(chat_id=update.effective_chat.id, text=
-    #         "Cool! How long will the event approximately last for? Please input a number to represent estimated "
-    #         "duration in hours." \
-    #         "\n" \
-    #         "Again, you can /cancel at any time to abort this process.")
     return DURATION
 
 
@@ -60,11 +51,6 @@ def duration(update: Update, context: CallbackContext) -> int:
         "Again, you can /cancel at any time to abort this process.",
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True),
     )
-    # context.bot.send_message(chat_id=update.effective_chat.id, text=
-    #         "In how many days will the event start? Please input a number to represent estimated duration in days." \
-    #         "\n" \
-    #         "Again, you can /cancel at any time to abort this process.")
-
     return TIMEFRAME
 
 
