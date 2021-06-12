@@ -11,12 +11,13 @@ from HelperFunctions import overwrite
 # Database
 collection_users = Database.db.users
 collection_details = Database.db.user_details
+collection_meetups = Database.db.meetups
 
 # States
 TITLE, DURATION, TIMEFRAME, PARTICIPANTS, NO_PARTICIPANTS = range(5)
 
 # Callback Data
-CHOOSE, DONE = range(2)
+DONE = 0
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,6 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     context.user_data["meetup_timeframe"] = user_input
 
     # Database insertion of new meetup (to be brought to last state)
-    collection_meetups = Database.db.meetups
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
     timeframe_temp: str = context.user_data.get("meetup_timeframe")
@@ -99,7 +99,6 @@ def timeframe(update: Update, context: CallbackContext) -> int:
         username = collection_details.find_one({'user_tele_id': user_id})['username']
         participant_pool.append(username)
     participant_pool.sort()
-    context.user_data["participant_pool"] = participant_pool
 
     # Participant Keyboard
     num_of_participants = len(participant_pool)
@@ -111,6 +110,9 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     context.user_data["participant_keyboard"] = reply_keyboard
 
     logger.info("Estimated time till event: %s", user_input)
+
+    # Store participant_pool with emojis
+    context.user_data["participant_pool"] = list(map(lambda x: x + " \U00002b1c", participant_pool))
 
     participant_pool_listed = '\n'.join(participant_pool)  # stringify name list
     update.message.reply_text(
@@ -138,9 +140,11 @@ def participants(update: Update, context: CallbackContext) -> int:
     # Add participant entered previously
     participant_pool = context.user_data.get("participant_pool")
     participants_final = context.user_data.get("participants_final")
+    value_unlisted = user_input + " \U00002b1c"                               # user input with blank box
+    value_listed = user_input + " ✅"                                          # user input with check box
     if user_input not in participants_final:
         participants_final.append(user_input)                                                   # add user to final list
-        participant_pool = overwrite(participant_pool, user_input, user_input + " \U00002714")  # add emoji to name list
+        participant_pool = overwrite(participant_pool, value_unlisted, value_listed)            # add check emoji
         context.user_data["participant_pool"] = participant_pool                                # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                   # stringify name list
         query.edit_message_text(
@@ -153,7 +157,7 @@ def participants(update: Update, context: CallbackContext) -> int:
         )
     else:
         participants_final.remove(user_input)                                                     # remove user
-        participant_pool = overwrite(participant_pool, user_input + " \U00002714", user_input)    # remove emoji
+        participant_pool = overwrite(participant_pool, value_listed, value_unlisted)              # add uncheck emoji
         context.user_data["participant_pool"] = participant_pool                                  # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
