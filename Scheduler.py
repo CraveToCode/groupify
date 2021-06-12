@@ -136,7 +136,7 @@ def participants(update: Update, context: CallbackContext) -> int:
 
     # Participant Keyboard
     num_of_participants = len(participant_pool)
-    n: int = int(sqrt(num_of_participants))
+    n: int = ceil(sqrt(num_of_participants))
     reply_keyboard = [participant_pool[i:i + n] for i in range(0, len(participant_pool), n)]
 
     logger.info("Participant list: %s", participants_final)
