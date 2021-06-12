@@ -84,6 +84,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
         'meetup_title': title_temp,
         'duration': int(duration_temp),
         'timeframe': timeframe_temp,
+        'part_list': None,
         'part_timetable_dict': None,
         'creator': update.effective_user.id,
         'state': False,
