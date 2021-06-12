@@ -123,23 +123,26 @@ def participants(update: Update, context: CallbackContext) -> int:
     chat_id = update.effective_chat.id
     user_input = query.data.split(':')[1]
 
+    # Participant Keyboard
+    reply_keyboard = context.user_data.get("participant_keyboard")
+
     # Add participant entered previously
     participants_final = context.user_data.get("participants_final")
     if user_input not in participants_final:
         participants_final.append(user_input)
+        query.edit_message_text(
+            text=f"{user_input} has been added. Would you like to add anyone else? If not, please select DONE",
+            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+        )
     else:
         participants_final.remove(user_input)
+        query.edit_message_text(
+            text=f"{user_input} has been removed. Would you like to add anyone else? If not, please select DONE",
+            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+        )
 
     context.user_data["participants_final"] = participants_final
-
-    # Participant Keyboard
-    reply_keyboard = context.user_data.get("participant_keyboard")
-
     logger.info("Participant list: %s", participants_final)
-    query.edit_message_text(
-        text=f"{user_input} has been added. Would you like to add anyone else? If not, please select DONE",
-        reply_markup=InlineKeyboardMarkup(reply_keyboard)
-    )
 
     return PARTICIPANTS
 
