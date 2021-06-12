@@ -112,7 +112,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     logger.info("Estimated time till event: %s", user_input)
 
     # Add cross emojis to participant_pool and store it
-    participant_pool = list(map(lambda x: x + " \U00002b1c", participant_pool))
+    participant_pool = list(map(lambda x: x + " \U0000274c", participant_pool))
     context.user_data["participant_pool"] = participant_pool
 
     participant_pool_listed = '\n'.join(participant_pool)  # stringify name list
