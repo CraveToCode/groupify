@@ -80,6 +80,10 @@ def leave(update, context):
     # TODO need to implement deletion from collection_details
 
 
+leave_handler = CommandHandler('leave', leave)
+dispatcher.add_handler(leave_handler)
+
+
 # Help Command
 help_msg = "GroupifyBot supports 3 features: Meetup Scheduler, Bill Splitter, Event Organiser\." \
            "\n \n" \
