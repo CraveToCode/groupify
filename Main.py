@@ -93,7 +93,7 @@ help_msg = "GroupifyBot supports 3 features: Meetup Scheduler, Bill Splitter, Ev
            "\n \n" \
            "*Important*: Please type */join* if you wish to be considered as a potential participant of the events " \
            "created through this bot\. You have the option of doing */leave* afterwards to stop being" \
-           "considered as a participant." \
+           "considered as a participant\." \
            "\n \n" \
            "Type */meetup* to start a new meetup event\. This will output the best time for all your friends to " \
            "meetup, along with the best location\." \
