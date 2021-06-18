@@ -2,6 +2,8 @@
 
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
+import flask
+from Flask import mongobp
 import telegram
 import logging
 import os
@@ -139,3 +141,10 @@ updater.start_webhook(listen="0.0.0.0",
                       url_path=TOKEN,
                       webhook_url="https://groupify-orbital.herokuapp.com/" + TOKEN)
 updater.idle()
+
+# Start Flask app
+app = flask.Flask(__name__)
+app.config["DEBUG"] = True
+app.register_blueprint(mongobp)
+app.run()
+
