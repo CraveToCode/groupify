@@ -150,10 +150,13 @@ app.config["DEBUG"] = True
 #def home():
  #   return '''<h1>Distant Reading Archive</h1>
 #<p>A prototype API for distant reading of science fiction novels.</p>'''
+
 @app.route('/<groupid>/<eventid>/<userid>/', methods=['GET', 'POST', 'PUT'])
 def getData(groupid, eventid, userid):
     # returns event name, participant list, timetable for that user
     return "<h1>test</h1>"
+
 #app.register_blueprint(mongobp)
-app.run()
+
+app.run(host="https://groupify-orbital.herokuapp.com/", port=PORT)
 
