@@ -136,11 +136,12 @@ dispatcher.add_handler(unknown_handler)
 
 
 # Start/Stop Bot
-'''updater.start_webhook(listen="0.0.0.0",
+if __name__ == "__main__":
+    updater.start_webhook(listen="0.0.0.0",
                       port=PORT,
                       url_path=TOKEN,
-                      webhook_url="https://groupify-orbital.herokuapp.com/" + TOKEN)'''
-#updater.idle()
+                      webhook_url="https://groupify-orbital.herokuapp.com/" + TOKEN)
+    updater.idle()
 
 # Start Flask app
 app = flask.Flask(__name__)
