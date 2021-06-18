@@ -3,3 +3,4 @@ mysql-connector-python
 pymongo
 dnspython
 flask
+gunicorn
