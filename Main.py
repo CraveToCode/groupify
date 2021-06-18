@@ -155,5 +155,7 @@ def getData(groupid, eventid, userid):
 #app.run(port=PORT)
 
 # Start/Stop Bot
-#if __name__ == "__main__":
+if __name__ == "__main__":
+    updater.start_polling()
+    updater.idle()
 
