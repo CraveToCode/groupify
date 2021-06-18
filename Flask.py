@@ -16,6 +16,8 @@ def getData(groupid, eventid, userid):
     # returns event name, participant list, timetable for that user
     #return f"{groupid}, {eventid}, {userid}"
     cursor = collection_meetups.find({"chat_id": groupid})
+    for x in cursor:
+        print(x)
     return dumps(list(cursor))
 
 
