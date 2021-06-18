@@ -1,6 +1,7 @@
 import flask
 import Database
 from flask import request, jsonify
+from bson.json_util import dumps
 
 # Database
 collection_users = Database.db.users
@@ -14,11 +15,8 @@ mongobp = flask.Blueprint('mongobp', __name__)
 def getData(groupid, eventid, userid):
     # returns event name, participant list, timetable for that user
     #return f"{groupid}, {eventid}, {userid}"
-    test = collection_meetups.find({"chat_id": groupid})
-    test2 = jsonify(test)
-    print(test)
-    print(test2)
-    return test2
+    cursor = collection_meetups.find({"chat_id": groupid})
+    return dumps(list(cursor))
 
 
 
