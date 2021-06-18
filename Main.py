@@ -158,5 +158,5 @@ def getData(groupid, eventid, userid):
 
 #app.register_blueprint(mongobp)
 
-app.run(host="https://groupify-orbital.herokuapp.com/", port=PORT)
+app.run()
 
