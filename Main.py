@@ -135,10 +135,6 @@ unknown_handler = MessageHandler(Filters.command, unknown)
 dispatcher.add_handler(unknown_handler)
 
 
-# Start/Stop Bot
-if __name__ == "__main__":
-    updater.start_polling()
-    updater.idle()
 
 # Start Flask app
 app = flask.Flask(__name__)
@@ -158,3 +154,7 @@ def getData(groupid, eventid, userid):
 
 app.run(port=PORT)
 
+# Start/Stop Bot
+if __name__ == "__main__":
+    updater.start_polling()
+    updater.idle()
