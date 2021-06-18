@@ -152,9 +152,8 @@ def getData(groupid, eventid, userid):
 
 #app.register_blueprint(mongobp)
 
-app.run(port=PORT)
+#app.run(port=PORT)
 
 # Start/Stop Bot
-if __name__ == "__main__":
-    updater.start_polling()
-    updater.idle()
+#if __name__ == "__main__":
+
