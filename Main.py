@@ -137,10 +137,7 @@ dispatcher.add_handler(unknown_handler)
 
 # Start/Stop Bot
 if __name__ == "__main__":
-    updater.start_webhook(listen="0.0.0.0",
-                      port=PORT,
-                      url_path=TOKEN,
-                      webhook_url="https://groupify-orbital.herokuapp.com/" + TOKEN)
+    updater.start_polling()
     updater.idle()
 
 # Start Flask app
@@ -159,5 +156,5 @@ def getData(groupid, eventid, userid):
 
 #app.register_blueprint(mongobp)
 
-#app.run(port=PORT)
+app.run()
 
