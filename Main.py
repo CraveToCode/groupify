@@ -154,7 +154,7 @@ app.config["DEBUG"] = True
 @app.route('/<groupid>/<eventid>/<userid>/', methods=['GET', 'POST', 'PUT'])
 def getData(groupid, eventid, userid):
     # returns event name, participant list, timetable for that user
-    return "<h1>test</h1>"
+    return f"{groupid}, {eventid}, {userid}"
 
 #app.register_blueprint(mongobp)
 
