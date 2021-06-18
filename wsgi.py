@@ -1,4 +1,4 @@
-from Main import app, PORT, TOKEN, updater
+from Main import app
 
 
 if __name__ == "__main__":
