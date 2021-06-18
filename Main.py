@@ -156,5 +156,5 @@ def getData(groupid, eventid, userid):
 
 #app.register_blueprint(mongobp)
 
-app.run()
+app.run(port=PORT)
 
