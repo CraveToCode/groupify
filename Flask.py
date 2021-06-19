@@ -15,7 +15,7 @@ mongobp = flask.Blueprint('mongobp', __name__)
 def getData(groupid, eventid, userid):
     # returns event name, participant list, timetable for that user
     #return f"{groupid}, {eventid}, {userid}"
-    cursor = collection_meetups.find({"chat_id": int(groupid)})
+    cursor = collection_meetups.find_one({"chat_id": int(groupid)})
     cursor2 = collection_meetups.find()
     for x in cursor2:
         print(x)
