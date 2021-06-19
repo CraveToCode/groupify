@@ -18,7 +18,7 @@ def getData(groupid, eventid, userid):
     cursor = collection_meetups.find_one({"chat_id": int(groupid)})
     cursor2 = collection_meetups.find()
     print(cursor)
-    return jsonify(cursor)
+    return dumps(cursor)
 
     #return dumps(list(cursor))
 
