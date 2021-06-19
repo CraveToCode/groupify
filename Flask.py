@@ -17,9 +17,9 @@ def getData(groupid, eventid, userid):
     #return f"{groupid}, {eventid}, {userid}"
     cursor = collection_meetups.find_one({"chat_id": int(groupid)})
     cursor2 = collection_meetups.find()
-    for x in cursor2:
-        print(x)
-    return dumps(list(cursor))
+    return cursor
+
+    #return dumps(list(cursor))
 
 
 
