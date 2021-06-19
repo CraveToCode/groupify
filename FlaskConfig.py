@@ -1,3 +1,5 @@
+import json
+
 import flask
 import Database
 from flask import request, jsonify
@@ -16,11 +18,11 @@ def getData(groupid, eventid, userid):
     # returns event name, participant list, timetable for that user
     #return f"{groupid}, {eventid}, {userid}"
     cursor = collection_meetups.find_one({"chat_id": int(groupid)})
-    cursor2 = collection_meetups.find()
     print(cursor)
-    return dumps(cursor)
+    response = jsonify(json.loads(dumps(cursor)))
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
-    #return dumps(list(cursor))
 
 
 
