@@ -3,3 +3,8 @@
 def overwrite(lst, value, new_value):
     lst[lst.index(value)] = new_value
     return lst
+
+
+# Given a unicode emoji, appends it to the end of each element in the list. Unicode e.g:"\U0000274c"
+def emojify_list(lst, emoji):
+    return list(map(lambda x: x + f" {emoji}", lst))

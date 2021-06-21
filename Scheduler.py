@@ -8,10 +8,11 @@ import Database
 from math import sqrt, ceil
 from HelperFunctions import overwrite
 
+
 # Database
 collection_users = Database.db.users
 collection_details = Database.db.user_details
-collection_meetups = Database.db.meetups
+collection_meetups = Database.db.bills
 
 # States
 TITLE, DURATION, TIMEFRAME, PARTICIPANTS, NO_PARTICIPANTS = range(5)
@@ -19,10 +20,15 @@ TITLE, DURATION, TIMEFRAME, PARTICIPANTS, NO_PARTICIPANTS = range(5)
 # Callback Data
 DONE = 0
 
+# Logging
 logger = logging.getLogger(__name__)
 
 
+# Program
 def meetup(update: Update, context: CallbackContext) -> int:
+    # Clear any user_data from other events in this chat
+    context.user_data.clear()
+
     update.message.reply_text(
         "Hi! Welcome to the Meetup Scheduler! Please input the name of your event. "
         "\n"
@@ -90,7 +96,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     participants_final = []
     context.user_data["participants_final"] = participants_final
 
-    # Retrieve possible participants
+    # Retrieve possible participants and sort list alphabetically
     chat_id = update.effective_chat.id
     mongo_participant_pool = collection_users.find({'chat_id': chat_id})     # list of data cursors from mongodb
     participant_pool = []                                                    # list of potential usernames
@@ -120,6 +126,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
         f"Please select the participants involved in this event."
         f"\nYou can tap the same person again to remove them."
         f"\nSelect DONE if you are done selecting participants."
+        f"\nAgain, you can /cancel at any time to abort this process."
         f"\n \n"
         f"Participant List: "
         f"\n{participant_pool_listed}",
@@ -132,7 +139,6 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 def participants(update: Update, context: CallbackContext) -> int:
     query = update.callback_query
     query.answer()
-    # user = update.message.from_user
     user_input = query.data.split(':')[1]
 
     # Participant Keyboard
