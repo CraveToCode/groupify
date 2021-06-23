@@ -146,7 +146,8 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     context.bot.send_message(chat_id=update.effective_chat.id, text=
         "Awesome! Participants responsible for ~owing you money~ the bill have been added."
         "\nWould you like to upload an image of the receipt for the others to see?",
-        reply_markup=InlineKeyboardMarkup(reply_keyboard)
+        reply_markup=InlineKeyboardMarkup(reply_keyboard),
+        parse_mode=telegram.ParseMode.MARKDOWN_V2
     )
 
     return IMAGE
@@ -259,15 +260,24 @@ def input_items_loop(update, context) -> int:
                                   f"{item_list}",
                                   chat_id=update.effective_chat.id,
                                   message_id=reference_message_id,
-                                  reply_markup=InlineKeyboardMarkup(reply_keyboard))
+                                  reply_markup=InlineKeyboardMarkup(reply_keyboard),
+                                  parse_mode=telegram.ParseMode.MARKDOWN_V2)
+
+    logger.info(f"Current Item List: {item_list}")
 
     return MANUAL_INPUT_LOOP
 
 
 def match_users(update, context):
     # TODO to be completed. only skeleton.
+    query = update.callback_query
+    query.answer()
 
-    update.message.reply_text("Wonderful! Please indicate which users are responsible for which items.")
+    num_of_items = context.user_data.get("item_number") - 1
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
+        "Wonderful! Please indicate which users are responsible for which items.")
+
 
     #TODO need to add state to convo_handler
     # return USER_MATCHING

@@ -74,24 +74,6 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     user_input = update.message.text
     context.user_data["meetup_timeframe"] = user_input
 
-    # Database insertion of new meetup (to be brought to last state)
-    title_temp: str = context.user_data.get("meetup_title")
-    duration_temp: int = context.user_data.get("meetup_duration")
-    timeframe_temp: str = context.user_data.get("meetup_timeframe")
-
-    new_meetup_data = {
-        'chat_id': update.effective_chat.id,
-        'meetup_title': title_temp,
-        'duration': int(duration_temp),
-        'timeframe': timeframe_temp,
-        'part_list': None,
-        'part_timetable_dict': None,
-        'creator': update.effective_user.id,
-        'state': False,
-        'output time': None
-    }
-    collection_meetups.insert_one(new_meetup_data)
-
     # Store list of finalized participants
     participants_final = []
     context.user_data["participants_final"] = participants_final
@@ -100,6 +82,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     chat_id = update.effective_chat.id
     mongo_participant_pool = collection_users.find({'chat_id': chat_id})     # list of data cursors from mongodb
     participant_pool = []                                                    # list of potential usernames
+    context.user_data["part_list"] = participant_pool                        # store list of username for database
     for participant in mongo_participant_pool:
         user_id = participant['user_tele_id']
         username = collection_details.find_one({'user_tele_id': user_id})['username']
@@ -119,7 +102,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 
     # Add cross emojis to participant_pool and store it
     participant_pool = list(map(lambda x: x + " \U0000274c", participant_pool))
-    context.user_data["participant_pool"] = participant_pool
+    context.user_data["participant_pool_emoji"] = participant_pool
 
     participant_pool_listed = '\n'.join(participant_pool)  # stringify name list
     update.message.reply_text(
@@ -145,14 +128,14 @@ def participants(update: Update, context: CallbackContext) -> int:
     reply_keyboard = context.user_data.get("participant_keyboard")
 
     # Add participant entered previously
-    participant_pool = context.user_data.get("participant_pool")
+    participant_pool = context.user_data.get("participant_pool_emoji")
     participants_final = context.user_data.get("participants_final")
     value_unlisted = user_input + " \U0000274c"                                # user input with cross
     value_listed = user_input + " \U00002714"                                  # user input with check
     if user_input not in participants_final:
         participants_final.append(user_input)                                                   # add user to final list
         participant_pool = overwrite(participant_pool, value_unlisted, value_listed)            # add check emoji
-        context.user_data["participant_pool"] = participant_pool                                # save new name list
+        context.user_data["participant_pool_emoji"] = participant_pool                          # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                   # stringify name list
         query.edit_message_text(
             text=f"{user_input} has been added."
@@ -165,7 +148,7 @@ def participants(update: Update, context: CallbackContext) -> int:
     else:
         participants_final.remove(user_input)                                                     # remove user
         participant_pool = overwrite(participant_pool, value_listed, value_unlisted)              # add cross emoji
-        context.user_data["participant_pool"] = participant_pool                                  # save new name list
+        context.user_data["participant_pool_emoji"] = participant_pool                            # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
             text=f"{user_input} has been removed."
@@ -189,6 +172,25 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     participants_final = context.user_data.get("participants_final")
     logger.info("All participants have been added. Final list: %s", participants_final)
     query.edit_message_text(text="Awesome! All participants please input your available timeslots.")
+
+    # Database insertion of new meetup (to be brought to last state)
+    title_temp: str = context.user_data.get("meetup_title")
+    duration_temp: int = context.user_data.get("meetup_duration")
+    timeframe_temp: str = context.user_data.get("meetup_timeframe")
+    part_list = context.user_data.get("part_list")
+
+    new_meetup_data = {
+        'chat_id': update.effective_chat.id,
+        'meetup_title': title_temp,
+        'duration': int(duration_temp),
+        'timeframe': timeframe_temp,
+        'part_list': part_list,
+        'part_timetable_dict': None,
+        'creator': update.effective_user.id,
+        'state': False,
+        'output time': None
+    }
+    collection_meetups.insert_one(new_meetup_data)
 
     return ConversationHandler.END
 
