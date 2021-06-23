@@ -12,7 +12,7 @@ from HelperFunctions import overwrite
 # Database
 collection_users = Database.db.users
 collection_details = Database.db.user_details
-collection_meetups = Database.db.bills
+collection_meetups = Database.db.meetups
 
 # States
 TITLE, DURATION, TIMEFRAME, PARTICIPANTS, NO_PARTICIPANTS = range(5)
