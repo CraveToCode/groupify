@@ -180,7 +180,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     # Database insertion of new meetup (to be brought to last state)
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
-    timeframe_temp: str = context.user_data.get("meetup_timeframe")
+    timeframe_temp: int = context.user_data.get("meetup_timeframe")
     part_list = context.user_data.get("part_list")
 
     new_meetup_data = {
