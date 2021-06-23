@@ -42,6 +42,7 @@ def title(update: Update, context: CallbackContext) -> int:
     context.user_data["meetup_title"] = user_input              # store title for database
     context.user_data["date"] = update.message.date             # store date for database
     logger.info("Name of event: %s", user_input)
+
     reply_keyboard = [['1', '2', '3', '4', '5', '6'], ['7', '8', '9', '10', '11', '12'], ['13', '14', '15', '16',
                        '17', '18'], ['19', '20', '21', '22', '23', '24']]
     update.message.reply_text(
@@ -87,7 +88,6 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     chat_id = update.effective_chat.id
     mongo_participant_pool = collection_users.find({'chat_id': chat_id})     # list of data cursors from mongodb
     participant_pool = []                                                    # list of potential usernames
-    context.user_data["part_list"] = participant_pool                        # store list of username for database
     for participant in mongo_participant_pool:
         user_id = participant['user_tele_id']
         username = collection_details.find_one({'user_tele_id': user_id})['username']
@@ -107,7 +107,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
 
     # Add cross emojis to participant_pool and store it
     participant_pool = list(map(lambda x: x + " \U0000274c", participant_pool))
-    context.user_data["participant_pool_emoji"] = participant_pool
+    context.user_data["participant_pool"] = participant_pool
 
     participant_pool_listed = '\n'.join(participant_pool)  # stringify name list
     update.message.reply_text(
@@ -133,14 +133,14 @@ def participants(update: Update, context: CallbackContext) -> int:
     reply_keyboard = context.user_data.get("participant_keyboard")
 
     # Add participant entered previously
-    participant_pool = context.user_data.get("participant_pool_emoji")
+    participant_pool = context.user_data.get("participant_pool")
     participants_final = context.user_data.get("participants_final")
     value_unlisted = user_input + " \U0000274c"                                # user input with cross
     value_listed = user_input + " \U00002714"                                  # user input with check
     if user_input not in participants_final:
         participants_final.append(user_input)                                                   # add user to final list
         participant_pool = overwrite(participant_pool, value_unlisted, value_listed)            # add check emoji
-        context.user_data["participant_pool_emoji"] = participant_pool                          # save new name list
+        context.user_data["participant_pool"] = participant_pool                                # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                   # stringify name list
         query.edit_message_text(
             text=f"{user_input} has been added."
@@ -153,7 +153,7 @@ def participants(update: Update, context: CallbackContext) -> int:
     else:
         participants_final.remove(user_input)                                                     # remove user
         participant_pool = overwrite(participant_pool, value_listed, value_unlisted)              # add cross emoji
-        context.user_data["participant_pool_emoji"] = participant_pool                            # save new name list
+        context.user_data["participant_pool"] = participant_pool                                  # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
             text=f"{user_input} has been removed."
@@ -182,20 +182,20 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
     timeframe_temp: int = context.user_data.get("meetup_timeframe")
-    part_list = context.user_data.get("part_list")
-    date: int = context.user_data.get("date")
+    participants_final_temp = context.user_data.get("participants_final")
+    date_temp: int = context.user_data.get("date")
 
     new_meetup_data = {
         'chat_id': update.effective_chat.id,
         'meetup_title': title_temp,
         'duration': int(duration_temp),
         'timeframe': timeframe_temp,
-        'part_list': part_list,
+        'part_list': participants_final_temp,
         'part_timetable_dict': None,
         'creator': update.effective_user.id,
         'state': False,
         'output time': None,
-        'date': date
+        'date': date_temp
     }
     collection_meetups.insert_one(new_meetup_data)
 
@@ -225,5 +225,3 @@ conv_handler_meetup = ConversationHandler(
     },
     fallbacks=[CommandHandler('cancel', cancel), CommandHandler('unknown', unknown)]
 )
-
-

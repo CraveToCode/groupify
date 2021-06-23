@@ -144,7 +144,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
                       InlineKeyboardButton("No", callback_data=str(NO_IMAGE))]]
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=
-        "Awesome! Participants responsible for ~owing you money~ the bill have been added."
+        "Awesome\! Participants responsible for ~owing you money~ the bill have been added\."
         "\nWould you like to upload an image of the receipt for the others to see?",
         reply_markup=InlineKeyboardMarkup(reply_keyboard),
         parse_mode=telegram.ParseMode.MARKDOWN_V2
@@ -251,17 +251,18 @@ def input_items_loop(update, context) -> int:
 
     reference_message_id = context.user_data.get("reference_message_id")
     reply_keyboard = [[InlineKeyboardButton("DONE", callback_data=str(DONE_ITEMS))]]
+    item_value = str(item_value)
     context.bot.edit_message_text(text=
-                                  f"{item_name} for ${item_value} has been added."
-                                  f"Please input the name and value of the next item (no. {item_number}) ."
+                                  f"{item_name} for ${item_value} has been added." 
+                                  f"Please input the name and value of the next item (no. {item_number}). "
                                   f"Otherwise, press DONE."
                                   f"\n \n"
-                                  f"*Current Item List:* "
+                                  f"---Current Item List--- "
                                   f"{item_list}",
                                   chat_id=update.effective_chat.id,
                                   message_id=reference_message_id,
-                                  reply_markup=InlineKeyboardMarkup(reply_keyboard),
-                                  parse_mode=telegram.ParseMode.MARKDOWN_V2)
+                                  reply_markup=InlineKeyboardMarkup(reply_keyboard)
+                                  )
 
     logger.info(f"Current Item List: {item_list}")
 
