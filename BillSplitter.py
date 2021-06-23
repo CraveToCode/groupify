@@ -64,8 +64,6 @@ def title(update, context) -> int:
     reply_keyboard.append([InlineKeyboardButton("DONE", callback_data=str(DONE_PARTICIPANTS))])
     context.user_data["participant_keyboard"] = reply_keyboard
 
-    logger.info("Name of event: %s", user_input)
-
     # Add cross emojis to participant_pool and store it
     participant_pool = list(map(lambda x: x + " \U0000274c", participant_pool))
     context.user_data["participant_pool"] = participant_pool
@@ -82,6 +80,9 @@ def title(update, context) -> int:
         f"\n{participant_pool_listed}",
         reply_markup=InlineKeyboardMarkup(reply_keyboard)
     )
+
+    # Log
+    logger.info("Name of bill: %s", user_input)
 
     return PARTICIPANTS
 
@@ -142,7 +143,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     reply_keyboard = [[InlineKeyboardButton("Yes", callback_data=str(YES_IMAGE)),
                       InlineKeyboardButton("No", callback_data=str(NO_IMAGE))]]
 
-    context.bot.send_message(
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
         "Awesome! Participants responsible for ~~owing you money~~ the bill have been added."
         "\nWould you like to upload an image of the receipt for the others to see?",
         reply_markup=InlineKeyboardMarkup(reply_keyboard)
@@ -191,7 +192,7 @@ def auto_read(update, context) -> int:
                       InlineKeyboardButton("Good to go", callback_data=str(SELF_INPUT))]]
 
     # TODO need to display auto generated results in reply_text below
-    context.bot.send_message(
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
         "This is the auto-generated bill split according to who owes what. "
         "\nIf this is inaccurate, you may opt to input the items manually instead.",
         reply_markup=InlineKeyboardMarkup(reply_keyboard)
