@@ -234,7 +234,7 @@ def input_items_start(update, context) -> int:
 def input_items_loop(update, context) -> int:
     user_input_split = update.message.text.split()
     item_name = user_input_split[0]
-    item_value = int(user_input_split[1])
+    item_value = float(user_input_split[1])
     item_number = context.user_data.get("item_number")
     context.user_data["item_number"] = item_number + 1      # item number of the next user input
 
