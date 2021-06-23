@@ -64,7 +64,7 @@ def title(update, context) -> int:
     reply_keyboard.append([InlineKeyboardButton("DONE", callback_data=str(DONE_PARTICIPANTS))])
     context.user_data["participant_keyboard"] = reply_keyboard
 
-    logger.info("Estimated time till event: %s", user_input)
+    logger.info("Name of event: %s", user_input)
 
     # Add cross emojis to participant_pool and store it
     participant_pool = list(map(lambda x: x + " \U0000274c", participant_pool))
@@ -142,7 +142,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     reply_keyboard = [[InlineKeyboardButton("Yes", callback_data=str(YES_IMAGE)),
                       InlineKeyboardButton("No", callback_data=str(NO_IMAGE))]]
 
-    update.message.reply_text(
+    context.bot.send_message(
         "Awesome! Participants responsible for ~~owing you money~~ the bill have been added."
         "\nWould you like to upload an image of the receipt for the others to see?",
         reply_markup=InlineKeyboardMarkup(reply_keyboard)
@@ -191,7 +191,7 @@ def auto_read(update, context) -> int:
                       InlineKeyboardButton("Good to go", callback_data=str(SELF_INPUT))]]
 
     # TODO need to display auto generated results in reply_text below
-    update.message.reply_text(
+    context.bot.send_message(
         "This is the auto-generated bill split according to who owes what. "
         "\nIf this is inaccurate, you may opt to input the items manually instead.",
         reply_markup=InlineKeyboardMarkup(reply_keyboard)
@@ -220,8 +220,9 @@ def input_items_start(update, context) -> int:
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=
         "Welcome to manual entry! Please input the name of your first item, followed by the value of it."
-        "\n For instance, if the item is 'Apple' for '$5.49', you should type 'apple 5.49', without the "
+        "\nFor instance, if the item is 'Apple' for '$5.49', you should type 'apple 5.49', without the "
         "quotation marks."
+        "\nYou can review this message each time you add an item."
         "\n"
         "\n"
         "Again, you can /cancel at any time to abort this process."
