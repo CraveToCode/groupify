@@ -252,13 +252,14 @@ def input_items_loop(update, context) -> int:
     reply_keyboard = [[InlineKeyboardButton("DONE", callback_data=str(DONE_ITEMS))]]
     context.bot.edit_message_text(text=
                                   f"{item_name} for ${item_value} has been added."
-                                  f"Please input the name and value of the next item, item {item_number}."
+                                  f"Please input the name and value of the next item (no. {item_number}) ."
                                   f"Otherwise, press DONE."
                                   f"\n \n"
-                                  f"Current Item List: "
-                                  f"\n{item_list}",
+                                  f"*Current Item List:* "
+                                  f"{item_list}",
                                   chat_id=update.effective_chat.id,
-                                  message_id=reference_message_id)
+                                  message_id=reference_message_id,
+                                  reply_markup=InlineKeyboardMarkup(reply_keyboard))
 
     return MANUAL_INPUT_LOOP
 
