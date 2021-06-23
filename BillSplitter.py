@@ -144,7 +144,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
                       InlineKeyboardButton("No", callback_data=str(NO_IMAGE))]]
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=
-        "Awesome! Participants responsible for ~~owing you money~~ the bill have been added."
+        "Awesome! Participants responsible for ~owing you money~ the bill have been added."
         "\nWould you like to upload an image of the receipt for the others to see?",
         reply_markup=InlineKeyboardMarkup(reply_keyboard)
     )
@@ -217,7 +217,7 @@ def input_items_start(update, context) -> int:
     context.user_data["item_dict"] = {}
     context.user_data["item_list"] = ""
 
-    num = context.bot.send_message(chat_id=update.effective_chat.id, text=
+    message_details = context.bot.send_message(chat_id=update.effective_chat.id, text=
         "Welcome to manual entry! Please input the name of your first item, followed by the value of it."
         "\nFor instance, if the item is 'Apple' for '$5.49', you should type 'apple 5.49', without the "
         "quotation marks."
@@ -226,9 +226,11 @@ def input_items_start(update, context) -> int:
         "\n"
         "Again, you can /cancel at any time to abort this process."
     )
-    print(f"message no. = {num}")
-    context.user_data["reference_message_id"] = update.message.message_id
+
+    print(message_details['message_id'])
+    context.user_data["reference_message_id"] = message_details['message_id']
     return MANUAL_INPUT_LOOP
+
 
 
 def input_items_loop(update, context) -> int:
