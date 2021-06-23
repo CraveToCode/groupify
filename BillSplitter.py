@@ -275,6 +275,7 @@ def match_users(update, context):
 
     num_of_items = context.user_data.get("item_number") - 1
 
+
     context.bot.send_message(chat_id=update.effective_chat.id, text=
         "Wonderful! Please indicate which users are responsible for which items.")
 
