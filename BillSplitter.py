@@ -227,10 +227,8 @@ def input_items_start(update, context) -> int:
         "Again, you can /cancel at any time to abort this process."
     )
 
-    print(message_details['message_id'])
     context.user_data["reference_message_id"] = message_details['message_id']
     return MANUAL_INPUT_LOOP
-
 
 
 def input_items_loop(update, context) -> int:
@@ -300,7 +298,7 @@ conv_handler_split = ConversationHandler(
         MANUAL_INPUT: [CallbackQueryHandler(temp, pattern='^' + str(GOOD_OUTPUT) + '$'),
                        CallbackQueryHandler(input_items_start, pattern='^' + str(SELF_INPUT) + '$')
                 ],
-        MANUAL_INPUT_LOOP: [MessageHandler(Filters.text & ~Filters.command, title),
+        MANUAL_INPUT_LOOP: [MessageHandler(Filters.text & ~Filters.command, input_items_loop),
                             CallbackQueryHandler(match_users, pattern='^' + str(DONE_ITEMS) + '$')]
     },
     fallbacks=[CommandHandler('cancel', cancel)],
