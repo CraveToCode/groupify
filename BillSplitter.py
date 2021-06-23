@@ -15,10 +15,12 @@ collection_details = Database.db.user_details
 collection_bills = Database.db.bills
 
 # States
-TITLE, PARTICIPANTS, IMAGE, ITEMS, UPLOAD, AUTO_READ, MANUAL_INPUT, MANUAL_INPUT_LOOP, USER_MATCHING = range(9)
+TITLE, PARTICIPANTS, IMAGE, ITEMS, UPLOAD, AUTO_READ, MANUAL_INPUT, MANUAL_INPUT_LOOP, USER_MATCHING,\
+    USER_MATCHING_LOOP= range(10)
 
 # Callback Data
-DONE_PARTICIPANTS, YES_IMAGE, NO_IMAGE, YES_READ, NO_READ, GOOD_OUTPUT, SELF_INPUT, DONE_ITEMS = range(8)
+DONE_PARTICIPANTS, YES_IMAGE, NO_IMAGE, YES_READ, NO_READ, GOOD_OUTPUT, SELF_INPUT, DONE_ITEMS, \
+    BEGIN_MATCHING, DONE_PAYERS = range(10)
 
 # Logging
 logger = logging.getLogger(__name__)
@@ -58,7 +60,7 @@ def title(update, context) -> int:
     # Participant Keyboard
     num_of_participants = len(participant_pool)
     n: int = ceil(sqrt(num_of_participants))
-    participant_pool_keyboard = list(map(lambda x: InlineKeyboardButton(x,  callback_data=f"button:{x}"),
+    participant_pool_keyboard = list(map(lambda x: InlineKeyboardButton(x,  callback_data=f"participant:{x}"),
                                          participant_pool))
     reply_keyboard = [participant_pool_keyboard[i:i + n] for i in range(0, num_of_participants, n)]
     reply_keyboard.append([InlineKeyboardButton("DONE", callback_data=str(DONE_PARTICIPANTS))])
@@ -269,25 +271,154 @@ def input_items_loop(update, context) -> int:
     return MANUAL_INPUT_LOOP
 
 
-def match_users(update, context):
-    # TODO to be completed. only skeleton.
+def match_users_prompt(update, context):
     query = update.callback_query
     query.answer()
 
-    num_of_items = context.user_data.get("item_number") - 1
+    item_dict = context.user_data.get("item_dict")
+    item_dict_keylist = list(item_dict.keys())
+    item_dict_keylist.append(None)
+    context.user_data["item_dict_keylist"] = item_dict_keylist
 
+    # Payer Keyboard Creation
+    participants_final = context.user_data.get("participants_final")
+    payer_pool = participants_final.copy()
+    num_of_payers = len(payer_pool)
+    n: int = ceil(sqrt(num_of_payers))
+    payer_pool_keyboard = list(map(lambda x: InlineKeyboardButton(x, callback_data=f"payer:{x}"),
+                                   payer_pool))
+    reply_keyboard = [payer_pool_keyboard[i:i + n] for i in range(0, num_of_payers, n)]
+    reply_keyboard.append([InlineKeyboardButton("DONE", callback_data=str(DONE_PAYERS))])
+    context.user_data["payer_keyboard"] = reply_keyboard
+
+    # Add cross emojis to payer_pool and store it
+    payer_pool = list(map(lambda x: x + " \U0000274c", payer_pool))
+    context.user_data["payer_pool"] = payer_pool
+    context.user_data["payer_pool_clean_list"] = '\n'.join(payer_pool)         # stringify name list
+
+    # Temporary field to allow program to realise what item it is at during the next state
+    started = False
+    context.user_data["started"] = started
+
+    # Reply keyboard for current state
+    reply_keyboard = [[InlineKeyboardButton("BEGIN", callback_data=str(BEGIN_MATCHING))]]
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=
-        "Wonderful! Please indicate which users are responsible for which items.")
+        "Wonderful! You will now be prompted to indicate which users are responsible for each item "
+        "in the bill. Press BEGIN to start the process.",
+        reply_markup=InlineKeyboardMarkup(reply_keyboard))
+
+    logger.info(f"User has finished inputting items.")
+
+    return USER_MATCHING
 
 
-    #TODO need to add state to convo_handler
-    # return USER_MATCHING
-    return ConversationHandler.END
+def match_users_start(update, context):
+    query = update.callback_query
+    query.answer()
+
+    # Store list of finalized participants if this is not the first iteration
+    started = context.user_data.get("started")
+    if started:
+        item = context.user_data.get("item")
+        item_dict = context.user_data.get("item_dict")
+        payers_final = context.user_data.get("payers_final")
+        item_dict[item].append(payers_final)
+        context.user_data["item_dict"] = item_dict
+    else:
+        started = True
+        context.user_data["started"] = started
+
+    # Pop first item from keylist and check if it exists
+    item_dict_keylist = context.user_data.get("item_dict_keylist")
+    item = item_dict_keylist.pop(0)
+
+    if item is None:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=
+        "All items have been accounted for. Payers will be notified individually!")
+
+        return ConversationHandler.END
+
+    else:
+        # Store new item and updated item_dict_keylist
+        context.user_data["item"] = item
+        context.user_data["item_dict_keylist"] = item_dict_keylist
+
+        # Reset list of finalized participants
+        payers_final = []
+        context.user_data["payers_final"] = payers_final
+
+        # Payer Keyboard
+        reply_keyboard = context.user_data.get("payer_keyboard")
+
+        # Reset payer pool
+        payer_pool = context.user_data.get("payer_pool")
+        context.user_data["payer_pool_edittable"] = payer_pool.copy()
+        payer_pool_listed = context.user_data.get("payer_pool_clean_list")
+        query.edit_message_text(
+            text=f"Please select the payers for {item}."
+                 f"\nYou can select DONE if you are done selecting payers."
+                 f"\nAgain, you can /cancel at any time to abort this process."
+                 f"\n \n"
+                 f"Payer list:"
+                 f"\n{payer_pool_listed}",
+            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+        )
+        return USER_MATCHING_LOOP
+
+
+def match_users_loop(update, context):
+    query = update.callback_query
+    query.answer()
+    user_input = query.data.split(':')[1]
+
+    # Retrieve current item
+    item = context.user_data.get("item")
+
+    # Retrieve Participant Keyboard
+    reply_keyboard = context.user_data.get("payer_keyboard")
+
+    # Add payer entered previously
+    payer_pool_edittable = context.user_data.get("payer_pool_edittable")
+    payers_final = context.user_data.get("payers_final")
+    value_unlisted = user_input + " \U0000274c"                                # user input with cross
+    value_listed = user_input + " \U00002714"                                  # user input with check
+    if user_input not in payers_final:
+        payers_final.append(user_input)                                                         # add user to final list
+        payer_pool_edittable = overwrite(payer_pool_edittable, value_unlisted, value_listed)    # add check emoji
+        context.user_data["payer_pool_edittable"] = payer_pool_edittable                        # save new name list
+        payer_pool_listed = '\n'.join(payer_pool_edittable)                                     # stringify name list
+        query.edit_message_text(
+            text=f"{user_input} has been added as payer for {item}."
+                 f"\nWould you like to add/remove anyone else? If not, please select DONE."
+                 f"\n \n"
+                 f"Payer list:"
+                 f"\n{payer_pool_listed}",
+            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+        )
+    else:
+        payers_final.remove(user_input)                                                         # remove user
+        payer_pool_edittable = overwrite(payer_pool_edittable, value_listed, value_unlisted)    # add cross emoji
+        context.user_data["payer_pool_edittable"] = payer_pool_edittable                        # save new name list
+        payer_pool_listed = '\n'.join(payer_pool_edittable)                                     # stringify name list
+        query.edit_message_text(
+            text=f"{user_input} has been removed from being a payer for {item}."
+                 f"\nWould you like to add/remove anyone else? If not, please select DONE."
+                 f"\n \n"
+                 f"Payer list:"
+                 f"\n{payer_pool_listed}",
+            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+        )
+
+    context.user_data["payers_final"] = payers_final
+    logger.info("Payer list: %s", payers_final)
+
+    return USER_MATCHING_LOOP
 
 
 def cancel(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Bill Splitter has successfully terminated.")
+    return ConversationHandler.END
 
 
 def unknown(update, context):
@@ -298,7 +429,7 @@ conv_handler_split = ConversationHandler(
     entry_points=[CommandHandler('split', bill_splitter)],
     states={
         TITLE: [MessageHandler(Filters.text & ~Filters.command, title)],
-        PARTICIPANTS: [CallbackQueryHandler(participants, pattern="^button"),
+        PARTICIPANTS: [CallbackQueryHandler(participants, pattern="^participant"),
                        CallbackQueryHandler(no_participants, pattern='^' + str(DONE_PARTICIPANTS) + '$')
                        ],
         IMAGE: [CallbackQueryHandler(upload_image, pattern='^' + str(YES_IMAGE) + '$'),
@@ -312,7 +443,10 @@ conv_handler_split = ConversationHandler(
                        CallbackQueryHandler(input_items_start, pattern='^' + str(SELF_INPUT) + '$')
                 ],
         MANUAL_INPUT_LOOP: [MessageHandler(Filters.text & ~Filters.command, input_items_loop),
-                            CallbackQueryHandler(match_users, pattern='^' + str(DONE_ITEMS) + '$')]
+                            CallbackQueryHandler(match_users_prompt, pattern='^' + str(DONE_ITEMS) + '$')],
+        USER_MATCHING: [CallbackQueryHandler(match_users_start, pattern='^' + str(BEGIN_MATCHING) + '$')],
+        USER_MATCHING_LOOP: [CallbackQueryHandler(match_users_loop, pattern="^payer"),
+                             CallbackQueryHandler(match_users_start, pattern='^' + str(DONE_PAYERS) + '$')]
     },
-    fallbacks=[CommandHandler('cancel', cancel)],
+    fallbacks=[CommandHandler('cancel', cancel), CommandHandler('unknown', unknown)]
 )
