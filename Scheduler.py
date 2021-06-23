@@ -198,7 +198,6 @@ def no_participants(update: Update, context: CallbackContext) -> int:
         'date': date
     }
     collection_meetups.insert_one(new_meetup_data)
-    id = collection_meetups.insert_one(new_meetup_data).inserted_idas
 
     return ConversationHandler.END
 
