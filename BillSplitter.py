@@ -239,7 +239,7 @@ def input_items_loop(update, context) -> int:
     context.user_data["item_number"] = item_number + 1      # item number of the next user input
 
     # Retrieve dictionary of items and store new item
-    item_dict = context.user_data.get["item_dict"]
+    item_dict = context.user_data.get("item_dict")
     item_dict[item_name] = [item_value]
     context.user_data["item_dict"] = item_dict              # Store updated item_dict
 
