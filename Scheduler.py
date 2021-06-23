@@ -39,7 +39,8 @@ def meetup(update: Update, context: CallbackContext) -> int:
 def title(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
     user_input = update.message.text
-    context.user_data["meetup_title"] = user_input
+    context.user_data["meetup_title"] = user_input              # store title for database
+    context.user_data["date"] = update.message.date             # store date for database
     logger.info("Name of event: %s", user_input)
     reply_keyboard = [['1', '2', '3', '4', '5', '6'], ['7', '8', '9', '10', '11', '12'], ['13', '14', '15', '16',
                        '17', '18'], ['19', '20', '21', '22', '23', '24']]
@@ -182,6 +183,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     duration_temp: int = context.user_data.get("meetup_duration")
     timeframe_temp: int = context.user_data.get("meetup_timeframe")
     part_list = context.user_data.get("part_list")
+    date: int = context.user_data.get("date")
 
     new_meetup_data = {
         'chat_id': update.effective_chat.id,
@@ -193,9 +195,10 @@ def no_participants(update: Update, context: CallbackContext) -> int:
         'creator': update.effective_user.id,
         'state': False,
         'output time': None,
-        'date': update.message.date
+        'date': date
     }
     collection_meetups.insert_one(new_meetup_data)
+    id = collection_meetups.insert_one(new_meetup_data).inserted_idas
 
     return ConversationHandler.END
 
