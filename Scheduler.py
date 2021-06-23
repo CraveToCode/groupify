@@ -72,7 +72,11 @@ def duration(update: Update, context: CallbackContext) -> int:
 def timeframe(update: Update, context: CallbackContext) -> int:
     # user = update.message.from_user
     user_input = update.message.text
-    context.user_data["meetup_timeframe"] = user_input
+
+    # To store in database estimated timeframe in days
+    map_to_number_of_days = {'Today': 1, 'Tomorrow': 2, 'Within the next 3 days': 3, 'Within a week': 7,
+                             'Within 2 weeks': 14, 'Within 3 weeks': 21, 'Within a month': 28}
+    context.user_data["meetup_timeframe"] = map_to_number_of_days[user_input]
 
     # Store list of finalized participants
     participants_final = []
@@ -188,7 +192,8 @@ def no_participants(update: Update, context: CallbackContext) -> int:
         'part_timetable_dict': None,
         'creator': update.effective_user.id,
         'state': False,
-        'output time': None
+        'output time': None,
+        'date': update.message.date
     }
     collection_meetups.insert_one(new_meetup_data)
 
