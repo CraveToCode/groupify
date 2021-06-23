@@ -1,6 +1,5 @@
 # Main file to initialize bot from
 
-from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 import flask
 from FlaskConfig import mongobp
