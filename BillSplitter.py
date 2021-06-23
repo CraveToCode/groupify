@@ -217,9 +217,9 @@ def input_items_start(update, context) -> int:
     context.user_data["item_dict"] = {}
     context.user_data["item_list"] = ""
 
-    update.message.reply_text("Proceeding to manual entry of items...")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Proceeding to manual entry of items...")
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text=
+    update.message.reply_text(
         "Welcome to manual entry! Please input the name of your first item, followed by the value of it."
         "\nFor instance, if the item is 'Apple' for '$5.49', you should type 'apple 5.49', without the "
         "quotation marks."
