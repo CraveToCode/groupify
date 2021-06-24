@@ -470,20 +470,20 @@ def gst_sc_calc(update, context):
 
     # Create money_dict and items_to_pay_dict
     participants_final = context.user_data.get("participants_final")
-    money_dict = dict((elem, 0.0) for elem in participants_final)        # dict of how much each person owes
-    items_to_pay_dict = dict((elem, []) for elem in participants_final)  # dict of what each person is paying for
+    money_dict = dict((elem, 0.0) for elem in participants_final)         # dict of how much each person owes
+    items_to_pay_dict = dict((elem, []) for elem in participants_final)   # dict of what items each person is paying for
     for key in item_dict.keys():
         value = item_dict[key]
-        cost = value[0]  # total cost of item
-        payers = value[1]  # list of payers
-        cost_individual = cost / len(payers)  # amt. to be paid by each payer for this item
+        cost = value[0]                         # total cost of item
+        payers = value[1]                       # list of payers
+        cost_individual = cost / len(payers)    # amt. to be paid by each payer for this item
         for payer in payers:
             if payer in money_dict.keys():
                 money_dict.update({payer: money_dict[payer] + cost_individual})
                 items_to_pay_dict[payer].append(key)
 
-    # Send Bill to al users
-    payee = update.effective_user.username
+    # Send Bill to all users
+    payee_username = update.effective_user.username
     bill_title = context.user_data.get("bill_title")
     for key in money_dict.keys():
         payer_id = collection_details.find_one({'username': key})['user_tele_id']
@@ -492,8 +492,20 @@ def gst_sc_calc(update, context):
 
         if pay_amount_rounded > 0:
             context.bot.send_message(chat_id=payer_id, text=
-                f"Hello! You owe ${pay_amount_rounded} to @{payee} for the bill '{bill_title}'."
+                f"Hello! You owe ${pay_amount_rounded} to @{payee_username} for the bill '{bill_title}'."
             )
+
+    # TODO uncomment database insertion later
+    # # Database insertion of new bill
+    # new_bill_data = {
+    #     'chat_id': update.effective_chat.id,
+    #     'bill_title': bill_title,
+    #     'bill_creator_id': update.effective_user.id,
+    #     'money_dict': money_dict,
+    #     'items_to_pay_dict': items_to_pay_dict,
+    #     'date': update.message.date
+    # }
+    # collection_bills.insert_one(new_bill_data)
 
     update.message.reply_text(
         "Fantastic! The bot will now send private messages to all parties responsible for the bill."
