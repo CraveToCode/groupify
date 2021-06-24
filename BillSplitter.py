@@ -32,7 +32,7 @@ def bill_splitter(update, context) -> int:
     context.user_data.clear()
 
     update.message.reply_text(
-        "Hi! Welcome to the Bill Splitter! Please title the bill. "
+        "Hi! Welcome to the Bill Splitter! Please title the bill. \U0001F9FE"
         "\n \n"
         "You can /cancel at any time to abort this process.")
 
@@ -67,7 +67,7 @@ def title(update, context) -> int:
     context.user_data["participant_keyboard"] = reply_keyboard
 
     # Add cross emojis to participant_pool and store it
-    participant_pool = list(map(lambda x: x + " \U0000274c", participant_pool))
+    participant_pool = list(map(lambda x: x + " \U0001F534", participant_pool))
     context.user_data["participant_pool"] = participant_pool
 
     participant_pool_listed = '\n'.join(participant_pool)  # stringify name list
@@ -100,8 +100,8 @@ def participants(update: Update, context: CallbackContext) -> int:
     # Add participant entered previously
     participant_pool = context.user_data.get("participant_pool")
     participants_final = context.user_data.get("participants_final")
-    value_unlisted = user_input + " \U0000274c"                                # user input with cross
-    value_listed = user_input + " \U00002714"                                  # user input with check
+    value_unlisted = user_input + " \U0001F534"                                # user input with cross
+    value_listed = user_input + " \U0001F7E2"                                  # user input with check
     if user_input not in participants_final:
         participants_final.append(user_input)                                                   # add user to final list
         participant_pool = overwrite(participant_pool, value_unlisted, value_listed)            # add check emoji
@@ -259,7 +259,7 @@ def input_items_loop(update, context) -> int:
 
     if item_name in item_dict:
         context.bot.edit_message_text(text=
-                                      f"INVALID \U0000203C"
+                                      f"\U0001F7E5 INVALID \U0001F7E5"
                                       f"\n{item_name} already has been input previously."
                                       f"\n"
                                       f"\nIf it is item with an identical name but different cost, you may rename the "
@@ -290,7 +290,7 @@ def input_items_loop(update, context) -> int:
 
         # item_value = str(item_value)
         context.bot.edit_message_text(text=
-                                      f"ADDED \U00002712"
+                                      f"\U0001F7E9 ADDED \U0001F7E9"
                                       f"\n{item_quantity}x {item_name} for ${item_value} each has been added. " 
                                       f"\nPlease input the name and value of the next item (no. {item_number}). "
                                       f"\nOtherwise, press DONE."
@@ -328,7 +328,7 @@ def match_users_prompt(update, context):
     context.user_data["payer_keyboard"] = reply_keyboard
 
     # Add cross emojis to payer_pool and store it
-    payer_pool = list(map(lambda x: x + " \U0000274c", payer_pool))
+    payer_pool = list(map(lambda x: x + " \U0001F534", payer_pool))
     context.user_data["payer_pool"] = payer_pool
     context.user_data["payer_pool_clean_list"] = '\n'.join(payer_pool)         # stringify name list
 
@@ -418,8 +418,8 @@ def match_users_loop(update, context):
     # Add payer entered previously
     payer_pool_edittable = context.user_data.get("payer_pool_edittable")
     payers_final = context.user_data.get("payers_final")
-    value_unlisted = user_input + " \U0000274c"                                # user input with cross
-    value_listed = user_input + " \U00002714"                                  # user input with check
+    value_unlisted = user_input + " \U0001F534"                                # user input with cross
+    value_listed = user_input + " \U0001F7E2"                                  # user input with check
     if user_input not in payers_final:
         payers_final.append(user_input)                                                         # add user to final list
         payer_pool_edittable = overwrite(payer_pool_edittable, value_unlisted, value_listed)    # add check emoji
