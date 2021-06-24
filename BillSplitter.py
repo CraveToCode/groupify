@@ -221,13 +221,16 @@ def input_items_start(update, context) -> int:
     context.user_data["item_list"] = ""
 
     message_details = context.bot.send_message(chat_id=update.effective_chat.id, text=
-        "Welcome to manual entry! Please input the name of your first item, followed by the value of it."
-        "\nFor instance, if the item is 'Apple' for '$5.49', you should type 'apple 5.49', without the "
-        "quotation marks."
-        "\nYou can review this message each time you add an item."
+        "Welcome to manual entry\! Please input the *name* of your first item, followed by the *value* and *quantity* "
+        "of it\."
+        "\nFor instance, if you want to input '2x Apple' for '$5\.49' each, you should type '*apple 5\.49 2*', "
+        "without the quotations\."
+        "\nYou can review this message each time you add an item\."
         "\n"
         "\n"
-        "Again, you can /cancel at any time to abort this process."
+        "Note: Duplicate names are disallowed."
+        "\nAgain, you can /cancel at any time to abort this process\.",
+        parse_mode=telegram.ParseMode.MARKDOWN_V2
     )
 
     context.user_data["reference_message_id"] = message_details['message_id']
@@ -238,24 +241,26 @@ def input_items_loop(update, context) -> int:
     user_input_split = update.message.text.split()
     item_name = user_input_split[0]
     item_value = float(user_input_split[1])
+    item_quantity = int(user_input_split[2])
+    item_cost = item_value * item_quantity
     item_number = context.user_data.get("item_number")
     context.user_data["item_number"] = item_number + 1      # item number of the next user input
 
     # Retrieve dictionary of items and store new item
     item_dict = context.user_data.get("item_dict")
-    item_dict[item_name] = [item_value]
+    item_dict[item_name] = [item_cost]
     context.user_data["item_dict"] = item_dict              # Store updated item_dict
 
     # Retrieve item_list string and add new item
     item_list = context.user_data.get("item_list")
-    item_list = item_list + f"\n{item_name}: {item_value}"
+    item_list = item_list + f"\n{item_number - 1}) {item_name}: ${item_value}   (Qty: x{item_quantity})"
     context.user_data["item_list"] = item_list
 
     reference_message_id = context.user_data.get("reference_message_id")
     reply_keyboard = [[InlineKeyboardButton("DONE", callback_data=str(DONE_ITEMS))]]
     item_value = str(item_value)
     context.bot.edit_message_text(text=
-                                  f"{item_name} for ${item_value} has been added." 
+                                  f"{item_quantity}x {item_name} for ${item_value} each has been added." 
                                   f"Please input the name and value of the next item (no. {item_number}). "
                                   f"Otherwise, press DONE."
                                   f"\n \n"
@@ -356,13 +361,14 @@ def match_users_start(update, context):
         context.user_data["payer_pool_edittable"] = payer_pool.copy()
         payer_pool_listed = context.user_data.get("payer_pool_clean_list")
         query.edit_message_text(
-            text=f"Please select the payers for {item}."
-                 f"\nYou can select DONE if you are done selecting payers."
-                 f"\nAgain, you can /cancel at any time to abort this process."
+            text=f"Please select the payers for *{item}*\."
+                 f"\nYou can select DONE if you are done selecting payers\."
+                 f"\nAgain, you can /cancel at any time to abort this process\."
                  f"\n \n"
                  f"Payer list:"
                  f"\n{payer_pool_listed}",
-            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+            reply_markup=InlineKeyboardMarkup(reply_keyboard),
+            parse_mode=telegram.ParseMode.MARKDOWN_V2
         )
         return USER_MATCHING_LOOP
 
