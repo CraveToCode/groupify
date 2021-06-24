@@ -225,10 +225,11 @@ def input_items_start(update, context) -> int:
         "of it\."
         "\nFor instance, if you want to input '2x Apple' for '$5\.49' each, you should type '*apple 5\.49 2*', "
         "without the quotations\."
+        "\n"
         "\nYou can review this message each time you add an item\."
         "\n"
         "\n"
-        "Note: Duplicate names are disallowed."
+        "Note: Duplicate names are disallowed\."
         "\nAgain, you can /cancel at any time to abort this process\.",
         parse_mode=telegram.ParseMode.MARKDOWN_V2
     )
@@ -238,42 +239,72 @@ def input_items_start(update, context) -> int:
 
 
 def input_items_loop(update, context) -> int:
+    # Read user input
     user_input_split = update.message.text.split()
     item_name = user_input_split[0]
     item_value = float(user_input_split[1])
     item_quantity = int(user_input_split[2])
     item_cost = item_value * item_quantity
+
+    # Retrieve relevant stored information
     item_number = context.user_data.get("item_number")
-    context.user_data["item_number"] = item_number + 1      # item number of the next user input
-
-    # Retrieve dictionary of items and store new item
-    item_dict = context.user_data.get("item_dict")
-    item_dict[item_name] = [item_cost]
-    context.user_data["item_dict"] = item_dict              # Store updated item_dict
-
-    # Retrieve item_list string and add new item
     item_list = context.user_data.get("item_list")
-    item_list = item_list + f"\n{item_number - 1}) {item_name}: ${item_value}   (Qty: x{item_quantity})"
-    context.user_data["item_list"] = item_list
-
     reference_message_id = context.user_data.get("reference_message_id")
+
+    # Reply Keyboard
     reply_keyboard = [[InlineKeyboardButton("DONE", callback_data=str(DONE_ITEMS))]]
-    item_value = str(item_value)
-    context.bot.edit_message_text(text=
-                                  f"{item_quantity}x {item_name} for ${item_value} each has been added." 
-                                  f"Please input the name and value of the next item (no. {item_number}). "
-                                  f"Otherwise, press DONE."
-                                  f"\n \n"
-                                  f"---Current Item List--- "
-                                  f"{item_list}",
-                                  chat_id=update.effective_chat.id,
-                                  message_id=reference_message_id,
-                                  reply_markup=InlineKeyboardMarkup(reply_keyboard)
-                                  )
 
-    logger.info(f"Current Item List: {item_list}")
+    # Retrieve dictionary and check if item already exists
+    item_dict = context.user_data.get("item_dict")
 
-    return MANUAL_INPUT_LOOP
+    if item_name in item_dict:
+        context.bot.edit_message_text(text=
+                                      f"INVALID \U0000203C"
+                                      f"\n{item_name} already has been input previously."
+                                      f"\n"
+                                      f"\nIf it is item with an identical name but different cost, you may rename the "
+                                      f"item and input it as such."
+                                      f"\nPlease input the next unique item (no. {item_number - 1}). "
+                                      f"Otherwise, press DONE."
+                                      f"\n \n"
+                                      f"---Current Item List--- "
+                                      f"{item_list}",
+                                      chat_id=update.effective_chat.id,
+                                      message_id=reference_message_id,
+                                      reply_markup=InlineKeyboardMarkup(reply_keyboard)
+                                      )
+
+        logger.info(f"Current Item List: {item_list}")
+        return MANUAL_INPUT_LOOP
+
+    else:
+        context.user_data["item_number"] = item_number + 1      # item number of the next user input
+
+        # Store new item in dictionary
+        item_dict[item_name] = [item_cost]
+        context.user_data["item_dict"] = item_dict              # Store updated item_dict
+
+        # Add new item to item_list string
+        item_list = item_list + f"\n{item_number - 1}) {item_name}: ${item_value}   (Qty: x{item_quantity})"
+        context.user_data["item_list"] = item_list
+
+        # item_value = str(item_value)
+        context.bot.edit_message_text(text=
+                                      f"ADDED \U00002712"
+                                      f"\n{item_quantity}x {item_name} for ${item_value} each has been added. " 
+                                      f"\nPlease input the name and value of the next item (no. {item_number}). "
+                                      f"\nOtherwise, press DONE."
+                                      f"\n \n"
+                                      f"---Current Item List--- "
+                                      f"{item_list}",
+                                      chat_id=update.effective_chat.id,
+                                      message_id=reference_message_id,
+                                      reply_markup=InlineKeyboardMarkup(reply_keyboard)
+                                      )
+
+        logger.info(f"Current Item List: {item_list}")
+
+        return MANUAL_INPUT_LOOP
 
 
 def match_users_prompt(update, context):
