@@ -16,7 +16,7 @@ collection_bills = Database.db.bills
 
 # States
 TITLE, PARTICIPANTS, IMAGE, ITEMS, UPLOAD, AUTO_READ, MANUAL_INPUT, MANUAL_INPUT_LOOP, USER_MATCHING,\
-    USER_MATCHING_LOOP= range(10)
+    USER_MATCHING_LOOP, CHARGES = range(11)
 
 # Callback Data
 DONE_PARTICIPANTS, YES_IMAGE, NO_IMAGE, YES_READ, NO_READ, GOOD_OUTPUT, SELF_INPUT, DONE_ITEMS, \
@@ -371,9 +371,14 @@ def match_users_start(update, context):
 
     if item is None:
         context.bot.send_message(chat_id=update.effective_chat.id, text=
-        "All items have been accounted for. Payers will be notified individually!")
+        "All items have been accounted for. Please input GST% and Service Charge%, seperated by a space."
+        "\n"
+        "\ne.g. Your input: 7 10"
+        "\nHere, 7 refers to 7% gst, and 10 refers to 10% service charge."
+        "\n"
+        "\nYou can still /cancel to abort this process.")
 
-        return ConversationHandler.END
+        return CHARGES
 
     else:
         # Store new item and updated item_dict_keylist
@@ -453,6 +458,49 @@ def match_users_loop(update, context):
     return USER_MATCHING_LOOP
 
 
+def gst_sc_calc(update, context):
+    user_input = update.message.text.split()
+    gst = float(user_input[0]) * 0.01 + 1
+    service_charge = float(user_input[1]) * 0.01 + 1
+    item_dict = context.user_data.get("item_dict")
+
+    # Insert gst and service charge costs
+    for value in item_dict.values():
+        value[0] = value[0] * gst * service_charge
+
+    # Create money_dict and items_to_pay_dict
+    participants_final = context.user_data.get("participants_final")
+    money_dict = dict((elem, 0.0) for elem in participants_final)        # dict of how much each person owes
+    items_to_pay_dict = dict((elem, []) for elem in participants_final)  # dict of what each person is paying for
+    for key in item_dict.keys():
+        value = item_dict[key]
+        cost = value[0]  # total cost of item
+        payers = value[1]  # list of payers
+        cost_individual = cost / len(payers)  # amt. to be paid by each payer for this item
+        for payer in payers:
+            if payer in money_dict.keys():
+                money_dict.update({payer: money_dict[payer] + cost_individual})
+                items_to_pay_dict[payer].append(key)
+
+    # Send Bill to al users
+    payee = update.effective_user.username
+    bill_title = context.user_data.get("bill_title")
+    for key in money_dict.keys():
+        payer_id = collection_details.find_one({'username': key})['user_tele_id']
+        pay_amount = money_dict[key]
+        pay_amount_rounded = round(pay_amount, 2)
+
+        if pay_amount_rounded > 0:
+            context.bot.send_message(chat_id=payer_id, text=
+                f"Hello! You owe ${pay_amount_rounded} to @{payee} for the bill '{bill_title}'."
+            )
+
+    update.message.reply_text(
+        "Fantastic! The bot will now send private messages to all parties responsible for the bill."
+    )
+    return ConversationHandler.END
+
+
 def cancel(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Bill Splitter has successfully terminated.")
     return ConversationHandler.END
@@ -483,7 +531,8 @@ conv_handler_split = ConversationHandler(
                             CallbackQueryHandler(match_users_prompt, pattern='^' + str(DONE_ITEMS) + '$')],
         USER_MATCHING: [CallbackQueryHandler(match_users_start, pattern='^' + str(BEGIN_MATCHING) + '$')],
         USER_MATCHING_LOOP: [CallbackQueryHandler(match_users_loop, pattern="^payer"),
-                             CallbackQueryHandler(match_users_start, pattern='^' + str(DONE_PAYERS) + '$')]
+                             CallbackQueryHandler(match_users_start, pattern='^' + str(DONE_PAYERS) + '$')],
+        CHARGES: [MessageHandler(Filters.text & ~Filters.command, gst_sc_calc)]
     },
     fallbacks=[CommandHandler('cancel', cancel), CommandHandler('unknown', unknown)]
 )
