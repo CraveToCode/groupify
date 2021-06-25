@@ -31,7 +31,7 @@ def updateData(groupid, eventid, userid):
         response.headers.add("Access-Control-Allow-Methods", "*")
         return response
     else:
-        req = jsonify(request.json())
+        req = request.json()
         print(req)
         collection_meetups.update_one({"chat_id": int(groupid), "_id": ObjectId(eventid)},
                                       { "$set": { f"part_timetable_dict.{userid}": req}})
