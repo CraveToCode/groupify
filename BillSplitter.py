@@ -1,4 +1,3 @@
-import pymongo
 import telegram
 from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext, \
@@ -378,6 +377,8 @@ def match_users_start(update, context):
         "\n"
         "\nYou can still /cancel to abort this process.")
 
+        logger.info(f"All items have been accounted for.")
+
         return CHARGES
 
     else:
@@ -406,6 +407,9 @@ def match_users_start(update, context):
             reply_markup=InlineKeyboardMarkup(reply_keyboard),
             parse_mode=telegram.ParseMode.MARKDOWN_V2
         )
+
+        logger.info(f"Payer selection for {item} has begun.")
+
         return USER_MATCHING_LOOP
 
 
@@ -453,7 +457,7 @@ def match_users_loop(update, context):
         )
 
     context.user_data["payers_final"] = payers_final
-    logger.info("Payer list: %s", payers_final)
+    logger.info("Payer list for %s: %s", item, payers_final)
 
     return USER_MATCHING_LOOP
 
@@ -463,6 +467,8 @@ def gst_sc_calc(update, context):
     gst = float(user_input[0]) * 0.01 + 1
     service_charge = float(user_input[1]) * 0.01 + 1
     item_dict = context.user_data.get("item_dict")
+
+    logger.info(f"GST = {gst}%. Service Charge = {service_charge}%.")
 
     # Insert gst and service charge costs
     for value in item_dict.values():
@@ -519,6 +525,9 @@ def gst_sc_calc(update, context):
         f"\n"
         f"\nThe bot will now send private messages to all parties responsible for the bill."
     )
+
+    logger.info("User has reached end of bill splitter using manual entry.")
+
     return ConversationHandler.END
 
 
