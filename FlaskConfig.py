@@ -14,17 +14,15 @@ collection_meetups = Database.db.meetups
 mongobp = flask.Blueprint('mongobp', __name__)
 
 
-@mongobp.route('/<groupid>/<eventid>/<userid>/getdata', methods=['GET'])
+@mongobp.route('/<groupid>/<eventid>/<userid>/', methods=['GET'])
 def getData(groupid, eventid, userid):
-    # returns event name, participant list, timetable for that user
-    #return f"{groupid}, {eventid}, {userid}"
     cursor = collection_meetups.find_one({"chat_id": int(groupid), "_id": ObjectId(eventid)})
     print(cursor)
     response = jsonify(json.loads(dumps(cursor)))
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
-@mongobp.route('/<groupid>/<eventid>/<userid>/updatedata', methods=['PUT'])
+@mongobp.route('/<groupid>/<eventid>/<userid>/', methods=['PUT'])
 def updateData(groupid, eventid, userid):
     req = request.data
     collection_meetups.update_one({"chat_id": int(groupid), "_id": ObjectId(eventid)},
