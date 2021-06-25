@@ -25,6 +25,7 @@ def getData(groupid, eventid, userid):
 @mongobp.route('/<groupid>/<eventid>/<userid>/', methods=['PUT', "OPTIONS"])
 def updateData(groupid, eventid, userid):
     if request.method == "OPTIONS":
+        print("test1")
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers", "*")
