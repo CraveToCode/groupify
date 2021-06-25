@@ -25,7 +25,6 @@ def getData(groupid, eventid, userid):
 @mongobp.route('/<groupid>/<eventid>/<userid>/', methods=['PUT', "OPTIONS"])
 def updateData(groupid, eventid, userid):
     if request.method == "OPTIONS":
-        print("test1")
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers", "*")
@@ -33,6 +32,7 @@ def updateData(groupid, eventid, userid):
         return response
     else:
         req = request.data
+        print(req)
         collection_meetups.update_one({"chat_id": int(groupid), "_id": ObjectId(eventid)},
                                       { "$set": { f"part_timetable_dict.{userid}": req}})
         response = make_response(jsonify({"message": "Timeslots updated"}), 200)
