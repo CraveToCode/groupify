@@ -22,15 +22,21 @@ def getData(groupid, eventid, userid):
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
-@mongobp.route('/<groupid>/<eventid>/<userid>/', methods=['PUT'])
+@mongobp.route('/<groupid>/<eventid>/<userid>/', methods=['PUT', "OPTIONS"])
 def updateData(groupid, eventid, userid):
-    req = request.data
-    collection_meetups.update_one({"chat_id": int(groupid), "_id": ObjectId(eventid)},
-                                  { "$set": { f"part_timetable_dict.{userid}": req}})
-    response = make_response(jsonify({"message": "Timeslots updated"}), 200)
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Methods", "PUT")
-    return response
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
+        return response
+    else:
+        req = request.data
+        collection_meetups.update_one({"chat_id": int(groupid), "_id": ObjectId(eventid)},
+                                      { "$set": { f"part_timetable_dict.{userid}": req}})
+        response = make_response(jsonify({"message": "Timeslots updated"}), 200)
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response
 
 
 
