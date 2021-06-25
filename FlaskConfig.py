@@ -31,6 +31,11 @@ def updateData(groupid, eventid, userid):
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
+@mongobp.route('/<groupid>/<eventid>/<userid>/', methods=['OPTIONS'])
+def updateData(groupid, eventid, userid):
+    response = make_response(jsonify({"message": "test"}), 200)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 
