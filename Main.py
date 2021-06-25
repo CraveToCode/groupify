@@ -3,6 +3,7 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 import flask
 from FlaskConfig import mongobp
+from flask_cors import CORS
 import telegram
 import logging
 import os
@@ -139,6 +140,7 @@ dispatcher.add_handler(unknown_handler)
 app = flask.Flask(__name__)
 #app.config["DEBUG"] = True
 app.register_blueprint(mongobp)
+CORS(app)
 
 # Start/Stop Bot
 if __name__ == "__main__":
