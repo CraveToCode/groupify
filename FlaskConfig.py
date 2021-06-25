@@ -2,7 +2,7 @@ import json
 
 import flask
 import Database
-from flask import request, jsonify
+from flask import request, jsonify, make_response
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 
@@ -14,7 +14,7 @@ collection_meetups = Database.db.meetups
 mongobp = flask.Blueprint('mongobp', __name__)
 
 
-@mongobp.route('/<groupid>/<eventid>/<userid>/', methods=['GET', 'POST', 'PUT'])
+@mongobp.route('/<groupid>/<eventid>/<userid>/getdata', methods=['GET'])
 def getData(groupid, eventid, userid):
     # returns event name, participant list, timetable for that user
     #return f"{groupid}, {eventid}, {userid}"
@@ -23,6 +23,14 @@ def getData(groupid, eventid, userid):
     response = jsonify(json.loads(dumps(cursor)))
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
+
+@mongobp.route('/<groupid>/<eventid>/<userid>/updatedata', methods=['PUT'])
+def updateData(groupid, eventid, userid):
+    req = request.data
+    collection_meetups.update_one({"chat_id": int(groupid), "_id": ObjectId(eventid)},
+                                  { "$set": { f"part_timetable_dict.{userid}": req}})
+    res = make_response(jsonify({"message": "Timeslots updated"}), 200)
+    return res
 
 
 
