@@ -476,11 +476,13 @@ def gst_sc_calc(update, context):
         value = item_dict[key]
         cost = value[0]                         # total cost of item
         payers = value[1]                       # list of payers
-        cost_individual = cost / len(payers)    # amt. to be paid by each payer for this item
-        for payer in payers:
-            if payer in money_dict.keys():
-                money_dict.update({payer: money_dict[payer] + cost_individual})
-                items_to_pay_dict[payer].append(key)
+        len_payers = len(payers)
+        if len_payers > 0:
+            cost_individual = cost / len_payers    # amt. to be paid by each payer for this item
+            for payer in payers:
+                if payer in money_dict.keys():
+                    money_dict.update({payer: money_dict[payer] + cost_individual})
+                    items_to_pay_dict[payer].append(key)
 
     # Send Bill to all users
     payee_username = update.effective_user.username
@@ -546,7 +548,9 @@ conv_handler_split = ConversationHandler(
         MANUAL_INPUT: [CallbackQueryHandler(temp, pattern='^' + str(GOOD_OUTPUT) + '$'),
                        CallbackQueryHandler(input_items_start, pattern='^' + str(SELF_INPUT) + '$')
                 ],
-        MANUAL_INPUT_LOOP: [MessageHandler(Filters.text & ~Filters.command, input_items_loop),
+        MANUAL_INPUT_LOOP: [MessageHandler(
+            Filters.regex(pattern='^' + '([a-zA-Z0-9])+(\s){1}([0-9])+(\.){0,1}([0-9])*(\s){1}([1-9])+' + '$') &
+            ~Filters.command, input_items_loop),
                             CallbackQueryHandler(match_users_prompt, pattern='^' + str(DONE_ITEMS) + '$')],
         USER_MATCHING: [CallbackQueryHandler(match_users_start, pattern='^' + str(BEGIN_MATCHING) + '$')],
         USER_MATCHING_LOOP: [CallbackQueryHandler(match_users_loop, pattern="^payer"),

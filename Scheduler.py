@@ -183,6 +183,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     duration_temp: int = context.user_data.get("meetup_duration")
     timeframe_temp: int = context.user_data.get("meetup_timeframe")
     participants_final_temp = context.user_data.get("participants_final")
+    part_timetable_dict_temp = dict((elem, None) for elem in participants_final)
     date_temp: int = context.user_data.get("date")
 
     new_meetup_data = {
@@ -191,7 +192,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
         'duration': int(duration_temp),
         'timeframe': timeframe_temp,
         'part_list': participants_final_temp,
-        'part_timetable_dict': None,
+        'part_timetable_dict': part_timetable_dict_temp,
         'creator': update.effective_user.id,
         'state': False,
         'output time': None,
