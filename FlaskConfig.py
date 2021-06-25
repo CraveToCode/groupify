@@ -27,8 +27,9 @@ def updateData(groupid, eventid, userid):
     req = request.data
     collection_meetups.update_one({"chat_id": int(groupid), "_id": ObjectId(eventid)},
                                   { "$set": { f"part_timetable_dict.{userid}": req}})
-    res = make_response(jsonify({"message": "Timeslots updated"}), 200)
-    return res
+    response = make_response(jsonify({"message": "Timeslots updated"}), 200)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 
