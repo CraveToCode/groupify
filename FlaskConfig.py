@@ -29,13 +29,10 @@ def updateData(groupid, eventid, userid):
                                   { "$set": { f"part_timetable_dict.{userid}": req}})
     response = make_response(jsonify({"message": "Timeslots updated"}), 200)
     response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Methods", "PUT")
     return response
 
-@mongobp.route('/<groupid>/<eventid>/<userid>/', methods=['OPTIONS'])
-def updateData(groupid, eventid, userid):
-    response = make_response(jsonify({"message": "test"}), 200)
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response
+
 
 
 
