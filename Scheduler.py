@@ -308,7 +308,7 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
         next_slot_str = f"\n{curr_timeslot_num}) {start_str} -> {end_str}"
         final_timeslot_str = final_timeslot_str + next_slot_str
 
-    Updater.bot.sendMessage(chat_id=chat_id, text=
+    Updater.bot.send_message(chat_id=chat_id, text=
         f"These are your available timeslots sorted in chronological order."
         f"\n"
         f"Timeslots:"
