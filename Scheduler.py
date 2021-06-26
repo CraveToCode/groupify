@@ -292,7 +292,7 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
 
     # Map indices to correct time periods in date format
     start_date = data_cursor['date']
-    start_date_zero = datetime.datetime(year=start_date.date, month=start_date.month, day=start_date.day)
+    start_date_zero = datetime.datetime(year=start_date.year, month=start_date.month, day=start_date.day)
     final_time_periods = []
     for period in time_period_indices:
         start_hour = start_date_zero + datetime.timedelta(hours=period[0])
