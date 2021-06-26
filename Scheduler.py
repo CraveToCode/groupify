@@ -294,30 +294,37 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
         else:
             curr_duration = 0
 
-    # Map indices to correct time periods in date format
-    start_date = data_cursor['date']
-    start_date_zero = datetime.datetime(year=start_date.year, month=start_date.month, day=start_date.day)
-    final_time_periods = []
-    for period in time_period_indices:
-        start_hour = start_date_zero + datetime.timedelta(hours=period[0])
-        end_hour = start_date_zero + datetime.timedelta(hours=period[1])
-        final_time_periods.append([start_hour, end_hour])
-
-    # Format time periods to make them readable
-    curr_timeslot_num = 1
-    final_timeslot_str = ""
-    for period in final_time_periods:
-        start_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[0])
-        end_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[1])
-        next_slot_str = f"\n{curr_timeslot_num}) {start_str} -> {end_str}"
-        final_timeslot_str = final_timeslot_str + next_slot_str
-        curr_timeslot_num += 1
-
     bot = telegram.Bot(token=TOKEN)
-    bot.send_message(chat_id=chat_id, text=
-        f"These are your available timeslots sorted in chronological order."
-        f"\n"
-        f"Timeslots:"
-        f"{final_timeslot_str}")
-    print(final_timeslot_str)
+    # Check if there are any common time periods first
+    if len(time_period_indices) == 0:
+        bot.send_message(chat_id=chat_id, text=
+        "There are no available timeslots.")
+    else:
+        # Map indices to correct time periods in date format
+        start_date = data_cursor['date']
+        start_date_zero = datetime.datetime(year=start_date.year, month=start_date.month, day=start_date.day)
+        final_time_periods = []
+        for period in time_period_indices:
+            start_hour = start_date_zero + datetime.timedelta(hours=period[0])
+            end_hour = start_date_zero + datetime.timedelta(hours=period[1])
+            final_time_periods.append([start_hour, end_hour])
+
+        # Format time periods to make them readable
+        curr_timeslot_num = 1
+        final_timeslot_str = ""
+        for period in final_time_periods:
+            start_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[0])
+            end_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[1])
+            next_slot_str = f"\n{curr_timeslot_num}) {start_str} -> {end_str}"
+            final_timeslot_str = final_timeslot_str + next_slot_str
+            curr_timeslot_num += 1
+
+        meetup_title = data_cursor['meetup_title']
+        bot.send_message(chat_id=chat_id, text=
+            f"These are your available timeslots for the meetup '{meetup_title}', sorted in chronological order."
+            f"\n"
+            f"Timeslots:"
+            f"{final_timeslot_str}")
+        print(final_timeslot_str)
+
     return base_timetable
