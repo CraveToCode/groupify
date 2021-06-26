@@ -261,6 +261,10 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
         all_timetable_flat.append(flatten(timetable))
     base_timetable = all_timetable_flat.pop(0)
 
+    print("base_timetable_before: \n" + str(base_timetable))
+    for timetable in all_timetable_list:
+        print("other_before: \n" + str(timetable))
+
     # Check common timeslots
     curr_timeslot = 0
     for timeslot in base_timetable:                 # timeslots are true/false values
