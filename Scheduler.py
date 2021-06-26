@@ -214,7 +214,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
         'part_timetable_dict': part_timetable_dict_temp,
         'creator': update.effective_user.id,
         'state': False,
-        'output time': None,
+        'output_time': None,
         'date': date_temp
     }
     data = collection_meetups.insert_one(new_meetup_data)
@@ -302,15 +302,15 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
         else:
             curr_duration = 0
 
-    bot = telegram.Bot(token=TOKEN)
     # Check if there are any common time periods first
+    bot = telegram.Bot(token=TOKEN)
     if len(time_period_indices) == 0:
         bot.send_message(chat_id=chat_id, text=
         "There are no available timeslots.")
     else:
         # Map indices to correct time periods in date format
         start_date = data_cursor['date']
-        start_date_local = start_date + datetime.timedelta(hours=8)
+        start_date_local = start_date + datetime.timedelta(hours=8)         # Convert to local timezone
         start_date_zero = datetime.datetime(year=start_date_local.year, month=start_date_local.month,
                                             day=start_date_local.day)
         final_time_periods = []
