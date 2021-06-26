@@ -43,7 +43,6 @@ def title(update: Update, context: CallbackContext) -> int:
     user_input = update.message.text
     context.user_data["meetup_title"] = user_input              # store title for database
     context.user_data["date"] = update.message.date             # store date for database
-    print(update.message.date)
     logger.info("Name of event: %s", user_input)
 
     hours_list = [str(i) for i in range(1, 25)]
@@ -272,21 +271,15 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
         all_timetable_flat.append(flatten(timetable))
     base_timetable = all_timetable_flat.pop(0)
 
-    print("base_timetable_before: \n" + str(base_timetable))
-    for timetable in all_timetable_flat:
-        print("other_before: \n" + str(timetable))
-
     # Check common timeslots
     curr_timeslot = 0
     for timeslot in base_timetable:                 # timeslots are true/false values
         if timeslot:                                # if the current timeslot is True
             for timetable in all_timetable_flat:    # timetable = [1,2,3,4]
                 if not timetable[curr_timeslot]:
-                    print("removed")
                     base_timetable[curr_timeslot] = False
                     break
         curr_timeslot += 1
-    print("base_timetable: \n" + str(base_timetable))
 
     # Find appropriate time periods and store their indices
     event_timeframe_days = data_cursor['timeframe']
@@ -317,7 +310,9 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
     else:
         # Map indices to correct time periods in date format
         start_date = data_cursor['date']
-        start_date_zero = datetime.datetime(year=start_date.year, month=start_date.month, day=start_date.day)
+        start_date_local = start_date + datetime.timedelta(hours=8)
+        start_date_zero = datetime.datetime(year=start_date_local.year, month=start_date_local.month,
+                                            day=start_date_local.day)
         final_time_periods = []
         for period in time_period_indices:
             start_hour = start_date_zero + datetime.timedelta(hours=period[0])
@@ -341,6 +336,5 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
             f"<b>Timeslots:</b>"
             f"{final_timeslot_str}",
             parse_mode=telegram.ParseMode.HTML)
-        print(final_timeslot_str)
 
     return base_timetable
