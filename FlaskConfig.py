@@ -5,9 +5,9 @@ import Database
 from flask import request, jsonify, make_response
 from bson.json_util import dumps
 from bson.objectid import ObjectId
-from Main import check_common_timeslot
 
-import Scheduler
+# import Scheduler
+from Scheduler import check_common_timeslot
 
 # Database
 collection_users = Database.db.users

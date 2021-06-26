@@ -11,8 +11,6 @@ import Database
 from Scheduler import conv_handler_meetup
 from Organiser import conv_handler_organiser
 from BillSplitter import conv_handler_split
-from HelperFunctions import flatten
-import datetime
 
 # API Token
 TOKEN = os.environ['API_KEY']
@@ -120,78 +118,6 @@ dispatcher.add_handler(help_handler)
 
 # Meetup Scheduler
 dispatcher.add_handler(conv_handler_meetup)
-
-
-# Algorithm for calculation
-def check_common_timeslot(chat_id, meetup_id, data_cursor):
-    part_timetable_dict = data_cursor['part_timetable_dict']
-    all_timetable_list = list(part_timetable_dict.values())     # = [[[], [], []], ...]
-    all_timetable_flat = []                                     # = [[1,2,3,4], [1,2,3,4], [1,2,3,4]]
-    for timetable in all_timetable_list:
-        all_timetable_flat.append(flatten(timetable))
-    base_timetable = all_timetable_flat.pop()
-
-    # Check common timeslots
-    curr_timeslot = 0
-    for timeslot in base_timetable:                 # timeslots are true/false values
-        if timeslot:                                # if the current timeslot is True
-            for timetable in all_timetable_flat:    # timetable = [1,2,3,4]
-                if not timetable[curr_timeslot]:
-                    base_timetable[curr_timeslot] = False
-                    curr_timeslot += 1
-                    break
-        else:
-            continue
-
-    # Find appropriate time periods and store their indices
-    event_timeframe_days = data_cursor['timeframe']
-    event_timeframe_hours = event_timeframe_days * 24 - 1
-    min_duration = data_cursor['duration']
-    curr_duration = 0
-    start_index = 0
-    time_period_indices = []
-    for index, timeslot in enumerate(base_timetable, start=0):
-        if timeslot:
-            if curr_duration == 0:
-                start_index = index
-            curr_duration += 1
-            if index < event_timeframe_hours:
-                if curr_duration >= min_duration and ~base_timetable[index + 1]:
-                    time_period_indices.append([start_index, index + 1])
-            else:
-                if curr_duration >= min_duration:
-                    time_period_indices.append([start_index, index + 1])
-        else:
-            curr_duration = 0
-
-    # Map indices to correct time periods in date format
-    start_date = data_cursor['date']
-    start_date_zero = datetime.datetime(year=start_date.year, month=start_date.month, day=start_date.day)
-    final_time_periods = []
-    for period in time_period_indices:
-        start_hour = start_date_zero + datetime.timedelta(hours=period[0])
-        end_hour = start_date_zero + datetime.timedelta(hours=period[1])
-        final_time_periods.append([start_hour, end_hour])
-
-    # Format time periods to make them readable
-    curr_timeslot_num = 1
-    final_timeslot_str = ""
-    for period in final_time_periods:
-        start_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[0])
-        end_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[1])
-        next_slot_str = f"\n{curr_timeslot_num}) {start_str} -> {end_str}"
-        final_timeslot_str = final_timeslot_str + next_slot_str
-
-    bot = telegram.Bot(token=TOKEN)
-    bot.send_message(chat_id=chat_id, text=
-        f"These are your available timeslots sorted in chronological order."
-        f"\n"
-        f"Timeslots:"
-        f"{final_timeslot_str}")
-    print(final_timeslot_str)
-    return base_timetable
-
-
 
 # Bill Splitter
 dispatcher.add_handler(conv_handler_split)
