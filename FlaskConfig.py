@@ -45,8 +45,7 @@ def updateData(groupid, eventid, userid):
         data_cursor = collection_meetups.find_one({'chat_id': chat_id, "_id": meetup_id})
         part_timetable_dict = data_cursor['part_timetable_dict']
         if None not in part_timetable_dict.values():
-            start_date = data_cursor['date']
-            Scheduler.check_common_timeslot(chat_id, meetup_id, part_timetable_dict, start_date)
+            Scheduler.check_common_timeslot(chat_id, meetup_id, part_timetable_dict, data_cursor)
 
         response = make_response(jsonify({"message": "Timeslots updated"}), 200)
         response.headers.add("Access-Control-Allow-Origin", "*")

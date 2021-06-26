@@ -6,7 +6,7 @@ import logging
 import Database
 from math import sqrt, ceil
 from HelperFunctions import overwrite, flatten
-
+import datetime
 
 # Database
 collection_users = Database.db.users
@@ -175,21 +175,36 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     query.answer()
     participants_final = context.user_data.get("participants_final")
     logger.info("All participants have been added. Final list: %s", participants_final)
-    query.edit_message_text(text="Awesome! All participants please input your available timeslots.")
 
     # Database insertion of new meetup (to be brought to last state)
+    chat_id_temp: int = update.effective_chat.id
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
     timeframe_temp: int = context.user_data.get("meetup_timeframe")
     participants_final_temp = context.user_data.get("participants_final")
     part_timetable_dict_temp = {}
+    participant_id_list = []
     for participant in participants_final_temp:
         participant_id = collection_details.find_one({'username': participant})['user_tele_id']
+        participant_id_list.append(participant_id)                  # List of participant ids for sending links in pm
         part_timetable_dict_temp[str(participant_id)] = None
-    date_temp: int = context.user_data.get("date")
+    date_temp = context.user_data.get("date")   # datetime.datetime object
+    next_date = date_temp + datetime.timedelta(days=1)
+    print(date_temp)
+    print(type(date_temp))
+    print(next_date)
+    print(type(next_date))
+    print(date_temp.day)
+    print(type(date_temp.day))
+    print(date_temp.month)
+    print(type(date_temp.month))
+    print(date_temp.date)
+    print(type(date_temp.date))
+
+
 
     new_meetup_data = {
-        'chat_id': update.effective_chat.id,
+        'chat_id': chat_id_temp,
         'meetup_title': title_temp,
         'duration': int(duration_temp),
         'timeframe': timeframe_temp,
@@ -200,7 +215,21 @@ def no_participants(update: Update, context: CallbackContext) -> int:
         'output time': None,
         'date': date_temp
     }
-    collection_meetups.insert_one(new_meetup_data)
+    data = collection_meetups.insert_one(new_meetup_data)
+
+    # Send link to each participant to allow them to fill in timeslots
+    meetup_id = data.inserted_id
+    for participant_id in participant_id_list:
+        context.bot.send_message(chat_id=participant_id, text=
+        f"Hi! Please indicate your available timeslots for the event '{title_temp}' in the link below."
+        f"\n"
+        f"\nLink: "
+        f"\nhttps://groupify-site.vercel.app/{chat_id_temp}/{meetup_id}/{participant_id}/")
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
+        "Awesome!"
+        "\nEach participant will be sent a link immediately. Please indicate your available timeslots "
+        "through that link")
 
     return ConversationHandler.END
 
@@ -230,7 +259,7 @@ conv_handler_meetup = ConversationHandler(
 )
 
 
-def check_common_timeslot(chat_id, meetup_id, part_timetable_dict, start_date):
+def check_common_timeslot(chat_id, meetup_id, part_timetable_dict, data_cursor):
     all_timetable_list = list(part_timetable_dict.values())     # = [[[], [], []], ...]
     all_timetable_flat = []                                     # = [[1,2,3,4], [1,2,3,4], [1,2,3,4]]
     for timetable in all_timetable_list:
@@ -249,6 +278,49 @@ def check_common_timeslot(chat_id, meetup_id, part_timetable_dict, start_date):
         else:
             continue
 
-    Updater.bot.sendMessage(chat_id=chat_id, text="")
+    # Find appropriate time periods and store their indices
+    event_timeframe_days = data_cursor['timeframe']
+    event_timeframe_hours = event_timeframe_days * 24 - 1
+    min_duration = data_cursor['duration']
+    curr_duration = 0
+    start_index = 0
+    time_period_indices = []
+    for index, timeslot in enumerate(base_timetable, start=0):
+        if timeslot:
+            if curr_duration == 0:
+                start_index = index
+            curr_duration += 1
+            if index < event_timeframe_hours:
+                if curr_duration >= min_duration and ~base_timetable[index + 1]:
+                    time_period_indices.append([start_index, index + 1])
+            else:
+                if curr_duration >= min_duration:
+                    time_period_indices.append([start_index, index + 1])
+        else:
+            curr_duration = 0
+
+    # Map indices to correct time periods in date format
+    start_date = data_cursor['date']
+    start_date_zero = datetime.datetime(year=start_date.date, month=start_date.month, day=start_date.day)
+    final_time_periods = []
+    for period in time_period_indices:
+        start_hour = start_date_zero + datetime.timedelta(hours=period[0])
+        end_hour = start_date_zero + datetime.timedelta(hours=period[1])
+        final_time_periods.append([start_hour, end_hour])
+
+    # Format time periods to make them readable
+    curr_timeslot_num = 1
+    final_timeslot_str = ""
+    for period in final_time_periods:
+        start_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[0])
+        end_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[1])
+        next_slot_str = f"\n{curr_timeslot_num}) {start_str} -> {end_str}"
+        final_timeslot_str = final_timeslot_str + next_slot_str
+
+    Updater.bot.sendMessage(chat_id=chat_id, text=
+        f"These are your available timeslots sorted in chronological order."
+        f"\n"
+        f"Timeslots:"
+        f"{final_timeslot_str}")
 
     return base_timetable
