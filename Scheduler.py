@@ -272,6 +272,7 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
                     break
         else:
             continue
+    print("base_timetable: \n" + str(base_timetable))
 
     # Find appropriate time periods and store their indices
     event_timeframe_days = data_cursor['timeframe']
