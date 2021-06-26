@@ -273,8 +273,8 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
                 if not timetable[curr_timeslot]:
                     print("removed")
                     base_timetable[curr_timeslot] = False
-                    curr_timeslot += 1
                     break
+        curr_timeslot += 1
     print("base_timetable: \n" + str(base_timetable))
 
     # Find appropriate time periods and store their indices
