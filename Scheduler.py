@@ -181,27 +181,15 @@ def no_participants(update: Update, context: CallbackContext) -> int:
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
     timeframe_temp: int = context.user_data.get("meetup_timeframe")
+    part_timetable_dict_value = [[False] * 24] * timeframe_temp
     participants_final_temp = context.user_data.get("participants_final")
     part_timetable_dict_temp = {}
-    participant_id_list = []
+    participant_id_list_temp = []
     for participant in participants_final_temp:
         participant_id = collection_details.find_one({'username': participant})['user_tele_id']
-        participant_id_list.append(participant_id)                  # List of participant ids for sending links in pm
-        part_timetable_dict_temp[str(participant_id)] = None
+        participant_id_list_temp.append(participant_id)               # List of participant ids for sending links in pm
+        part_timetable_dict_temp[str(participant_id)] = part_timetable_dict_value.copy()
     date_temp = context.user_data.get("date")   # datetime.datetime object
-    next_date = date_temp + datetime.timedelta(days=1)
-    print(date_temp)
-    print(type(date_temp))
-    print(next_date)
-    print(type(next_date))
-    print(date_temp.day)
-    print(type(date_temp.day))
-    print(date_temp.month)
-    print(type(date_temp.month))
-    print(date_temp.date)
-    print(type(date_temp.date))
-
-
 
     new_meetup_data = {
         'chat_id': chat_id_temp,
@@ -209,6 +197,8 @@ def no_participants(update: Update, context: CallbackContext) -> int:
         'duration': int(duration_temp),
         'timeframe': timeframe_temp,
         'part_list': participants_final_temp,
+        'part_list_id': participant_id_list_temp,
+        'part_id_left_to_fill': participant_id_list_temp.copy(),
         'part_timetable_dict': part_timetable_dict_temp,
         'creator': update.effective_user.id,
         'state': False,
@@ -219,7 +209,7 @@ def no_participants(update: Update, context: CallbackContext) -> int:
 
     # Send link to each participant to allow them to fill in timeslots
     meetup_id = data.inserted_id
-    for participant_id in participant_id_list:
+    for participant_id in participant_id_list_temp:
         context.bot.send_message(chat_id=participant_id, text=
         f"Hi! Please indicate your available timeslots for the event '{title_temp}' in the link below."
         f"\n"
@@ -259,7 +249,8 @@ conv_handler_meetup = ConversationHandler(
 )
 
 
-def check_common_timeslot(chat_id, meetup_id, part_timetable_dict, data_cursor):
+def check_common_timeslot(chat_id, meetup_id, data_cursor):
+    part_timetable_dict = data_cursor['part_timetable_dict']
     all_timetable_list = list(part_timetable_dict.values())     # = [[[], [], []], ...]
     all_timetable_flat = []                                     # = [[1,2,3,4], [1,2,3,4], [1,2,3,4]]
     for timetable in all_timetable_list:
@@ -322,5 +313,5 @@ def check_common_timeslot(chat_id, meetup_id, part_timetable_dict, data_cursor):
         f"\n"
         f"Timeslots:"
         f"{final_timeslot_str}")
-
+    print(final_timeslot_str)
     return base_timetable

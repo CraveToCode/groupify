@@ -43,9 +43,15 @@ def updateData(groupid, eventid, userid):
 
         # Check if all users have input their available timeslots
         data_cursor = collection_meetups.find_one({'chat_id': chat_id, "_id": meetup_id})
-        part_timetable_dict = data_cursor['part_timetable_dict']
-        if None not in part_timetable_dict.values():
-            Scheduler.check_common_timeslot(chat_id, meetup_id, part_timetable_dict, data_cursor)
+        part_id_left_to_fill = data_cursor['part_id_left_to_fill']
+        if len(part_id_left_to_fill) == 0:
+            Scheduler.check_common_timeslot(chat_id, meetup_id, data_cursor)
+        else:
+            part_id_left_to_fill.remove(int(userid))
+            collection_meetups.update_one({'chat_id': chat_id, '_id': meetup_id},
+                                          {'$set': {'part_id_left_to_fill': part_id_left_to_fill}})
+            if len(part_id_left_to_fill) == 0:
+                Scheduler.check_common_timeslot(chat_id, meetup_id, data_cursor)
 
         response = make_response(jsonify({"message": "Timeslots updated"}), 200)
         response.headers.add("Access-Control-Allow-Origin", "*")
