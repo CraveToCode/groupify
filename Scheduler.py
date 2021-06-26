@@ -43,6 +43,7 @@ def title(update: Update, context: CallbackContext) -> int:
     user_input = update.message.text
     context.user_data["meetup_title"] = user_input              # store title for database
     context.user_data["date"] = update.message.date             # store date for database
+    print(update.message.date)
     logger.info("Name of event: %s", user_input)
 
     hours_list = [str(i) for i in range(1, 25)]
