@@ -40,46 +40,54 @@ def meetup(update: Update, context: CallbackContext) -> int:
 
 
 def title(update: Update, context: CallbackContext) -> int:
-    # user = update.message.from_user
     user_input = update.message.text
     context.user_data["meetup_title"] = user_input              # store title for database
     context.user_data["date"] = update.message.date             # store date for database
     logger.info("Name of event: %s", user_input)
 
-    reply_keyboard = [['1', '2', '3', '4', '5', '6'], ['7', '8', '9', '10', '11', '12'], ['13', '14', '15', '16',
-                       '17', '18'], ['19', '20', '21', '22', '23', '24']]
+    hours_list = [str(i) for i in range(1, 25)]
+    hours_keyboard = list(map(lambda x: InlineKeyboardButton(x,  callback_data=f"hours:{x}"), hours_list))
+    reply_keyboard = [hours_keyboard[i: i + 6] for i in range(0, 24, 6)]
+
     update.message.reply_text(
         "Cool! How long will the event approximately last for in hours? Please select an option in the keyboard below."
         "\n"
         "Again, you can /cancel at any time to abort this process.",
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True),
+        reply_markup=InlineKeyboardMarkup(reply_keyboard)
     )
+
     return DURATION
 
 
 def duration(update: Update, context: CallbackContext) -> int:
-    # user = update.message.from_user
-    user_input = update.message.text
+    query = update.callback_query
+    query.answer()
+    user_input = query.data.split(':')[1]
     context.user_data["meetup_duration"] = user_input
     logger.info("Estimated event duration: %s hours", user_input)
-    reply_keyboard = [['Today', 'Tomorrow', 'Within the next 3 days'], ['Within a week', 'Within 2 weeks'],
+    timeframe_list = [['Today', 'Tomorrow', 'Within the next 3 days'], ['Within a week', 'Within 2 weeks'],
                       ['Within 3 weeks', 'Within a month']]
-    update.message.reply_text(
+    reply_keyboard = []
+    for row in timeframe_list:
+        reply_keyboard.append(list(map(lambda x: InlineKeyboardButton(x,  callback_data=f"time:{x}"), row)))
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
         "Approximately when will the event be? Please select the estimated timeframe within which the event will "
         "occur."
         "\n"
         "Again, you can /cancel at any time to abort this process.",
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True),
+        reply_markup=InlineKeyboardMarkup(reply_keyboard)
     )
     return TIMEFRAME
 
 
 def timeframe(update: Update, context: CallbackContext) -> int:
-    # user = update.message.from_user
-    user_input = update.message.text
+    query = update.callback_query
+    query.answer()
+    user_input = query.data.split(':')[1]
 
     # To store in database estimated timeframe in days
-    map_to_number_of_days = {'Today': 1, 'Tomorrow': 2, 'Within the next 3 days': 3, 'Within a week': 7,
+    map_to_number_of_days = {'Today': 1, 'By Tomorrow': 2, 'Within the next 3 days': 3, 'Within a week': 7,
                              'Within 2 weeks': 14, 'Within 3 weeks': 21, 'Within a month': 28}
     context.user_data["meetup_timeframe"] = map_to_number_of_days[user_input]
 
@@ -113,7 +121,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     context.user_data["participant_pool"] = participant_pool
 
     participant_pool_listed = '\n'.join(participant_pool)  # stringify name list
-    update.message.reply_text(
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
         f"Please select the participants involved in this event."
         f"\nYou can tap the same person again to remove them."
         f"\nSelect DONE if you are done selecting participants."
@@ -242,9 +250,11 @@ def unknown(update: Update, context: CallbackContext):
 conv_handler_meetup = ConversationHandler(
     entry_points=[CommandHandler('meetup', meetup)],
     states={
-        TITLE: [MessageHandler(Filters.text & ~Filters.command, title)],
-        DURATION: [MessageHandler(Filters.text & ~Filters.command, duration)],
-        TIMEFRAME: [MessageHandler(Filters.text & ~Filters.command, timeframe)],
+        TITLE: [MessageHandler(Filters.regex(pattern='^' + '([a-zA-Z0-9\-()])+' + '$') & ~Filters.command, title)],
+        # DURATION: [MessageHandler(Filters.regex(pattern='^' + '([a-zA-Z0-9\-()])+' + '$') & ~Filters.command, title)],
+        DURATION: [CallbackQueryHandler(duration, pattern = "^hours")],
+        # TIMEFRAME: [MessageHandler(Filters.text & ~Filters.command, timeframe)],
+        TIMEFRAME: [CallbackQueryHandler(timeframe, pattern = "^time")],
         PARTICIPANTS: [CallbackQueryHandler(participants, pattern="^button"),
                        CallbackQueryHandler(no_participants, pattern='^' + str(DONE) + '$')
                        ]
@@ -327,8 +337,9 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
         bot.send_message(chat_id=chat_id, text=
             f"These are your available timeslots for the meetup '{meetup_title}', sorted in chronological order."
             f"\n"
-            f"Timeslots:"
-            f"{final_timeslot_str}")
+            f"<b>Timeslots:</b>"
+            f"{final_timeslot_str}",
+            parse_mode=telegram.ParseMode.HTML)
         print(final_timeslot_str)
 
     return base_timetable

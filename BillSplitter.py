@@ -107,12 +107,13 @@ def participants(update: Update, context: CallbackContext) -> int:
         context.user_data["participant_pool"] = participant_pool                                # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                   # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been added."
+            text=f"<b>{user_input}</b> has been <b>added</b>."
                  f"\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Participant list:"
                  f"\n{participant_pool_listed}",
-            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+            reply_markup=InlineKeyboardMarkup(reply_keyboard),
+            parse_mode=telegram.ParseMode.HTML
         )
     else:
         participants_final.remove(user_input)                                                     # remove user
@@ -120,12 +121,13 @@ def participants(update: Update, context: CallbackContext) -> int:
         context.user_data["participant_pool"] = participant_pool                                  # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been removed."
+            text=f"<b>{user_input}</b> has been <b>removed</b>."
                  f"\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Participant list:"
                  f"\n{participant_pool_listed}",
-            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+            reply_markup=InlineKeyboardMarkup(reply_keyboard),
+            parse_mode=telegram.ParseMode.HTML
         )
 
     context.user_data["participants_final"] = participants_final
@@ -258,7 +260,7 @@ def input_items_loop(update, context) -> int:
 
     if item_name in item_dict:
         context.bot.edit_message_text(text=
-                                      f"\U0001F7E5 INVALID \U0001F7E5"
+                                      f"\U0001F7E5 <b>INVALID</b> \U0001F7E5"
                                       f"\n{item_name} already has been input previously."
                                       f"\n"
                                       f"\nIf it is item with an identical name but different cost, you may rename the "
@@ -270,7 +272,8 @@ def input_items_loop(update, context) -> int:
                                       f"{item_list}",
                                       chat_id=update.effective_chat.id,
                                       message_id=reference_message_id,
-                                      reply_markup=InlineKeyboardMarkup(reply_keyboard)
+                                      reply_markup=InlineKeyboardMarkup(reply_keyboard),
+                                      parse_mode=telegram.ParseMode.HTML
                                       )
 
         logger.info(f"Current Item List: {item_list}")
@@ -289,8 +292,9 @@ def input_items_loop(update, context) -> int:
 
         # item_value = str(item_value)
         context.bot.edit_message_text(text=
-                                      f"\U0001F7E9 ADDED \U0001F7E9"
-                                      f"\n{item_quantity}x {item_name} for ${item_value} each has been added. " 
+                                      f"\U0001F7E9 <b>ADDED</b> \U0001F7E9"
+                                      f"\n<b>{item_quantity}x {item_name}</b> for <b>${item_value}</b> each has "
+                                      f"been added." 
                                       f"\nPlease input the name and value of the next item (no. {item_number}). "
                                       f"\nOtherwise, press DONE."
                                       f"\n \n"
@@ -298,7 +302,8 @@ def input_items_loop(update, context) -> int:
                                       f"{item_list}",
                                       chat_id=update.effective_chat.id,
                                       message_id=reference_message_id,
-                                      reply_markup=InlineKeyboardMarkup(reply_keyboard)
+                                      reply_markup=InlineKeyboardMarkup(reply_keyboard),
+                                      parse_mode=telegram.ParseMode.HTML
                                       )
 
         logger.info(f"Current Item List: {item_list}")
@@ -370,12 +375,13 @@ def match_users_start(update, context):
 
     if item is None:
         context.bot.send_message(chat_id=update.effective_chat.id, text=
-        "All items have been accounted for. Please input GST% and Service Charge%, seperated by a space."
+        "All items have been accounted for. Please input <b>GST%</b> and <b>Service Charge%</b>, seperated by a space."
         "\n"
         "\ne.g. Your input: 7 10"
         "\nHere, 7 refers to 7% gst, and 10 refers to 10% service charge."
         "\n"
-        "\nYou can still /cancel to abort this process.")
+        "\nYou can still /cancel to abort this process.",
+        parse_mode=telegram.ParseMode.HTML)
 
         logger.info(f"All items have been accounted for.")
 
@@ -435,12 +441,13 @@ def match_users_loop(update, context):
         context.user_data["payer_pool_edittable"] = payer_pool_edittable                        # save new name list
         payer_pool_listed = '\n'.join(payer_pool_edittable)                                     # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been added as payer for {item}."
+            text=f"<b>{user_input}</b> has been <b>added</b> as payer for {item}."
                  f"\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Payer list:"
                  f"\n{payer_pool_listed}",
-            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+            reply_markup=InlineKeyboardMarkup(reply_keyboard),
+            parse_mode=telegram.ParseMode.HTML
         )
     else:
         payers_final.remove(user_input)                                                         # remove user
@@ -448,12 +455,13 @@ def match_users_loop(update, context):
         context.user_data["payer_pool_edittable"] = payer_pool_edittable                        # save new name list
         payer_pool_listed = '\n'.join(payer_pool_edittable)                                     # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been removed from being a payer for {item}."
+            text=f"<b>{user_input}</b> has been <b>removed</b> from being a payer for {item}."
                  f"\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Payer list:"
                  f"\n{payer_pool_listed}",
-            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+            reply_markup=InlineKeyboardMarkup(reply_keyboard),
+            parse_mode=telegram.ParseMode.HTML
         )
 
     context.user_data["payers_final"] = payers_final
@@ -468,7 +476,7 @@ def gst_sc_calc(update, context):
     service_charge = float(user_input[1]) * 0.01 + 1
     item_dict = context.user_data.get("item_dict")
 
-    logger.info(f"GST = {gst}%. Service Charge = {service_charge}%.")
+    logger.info(f"GST = {gst}. Service Charge = {service_charge}.")
 
     # Insert gst and service charge costs
     for value in item_dict.values():
@@ -502,7 +510,9 @@ def gst_sc_calc(update, context):
         if pay_amount_rounded > 0:
             bill_compiled = bill_compiled + f"\n@{key}: ${pay_amount_rounded}"
             context.bot.send_message(chat_id=payer_id, text=
-                f"Hello! You owe ${pay_amount_rounded} to @{payee_username} for the bill '{bill_title}'."
+                f"Hello! You owe <b>${pay_amount_rounded}</b> to <b>@{payee_username}</b> "
+                f"for the bill '<b>{bill_title}</b>'.",
+                parse_mode=telegram.ParseMode.HTML
             )
 
     # TODO uncomment database insertion later
@@ -520,10 +530,11 @@ def gst_sc_calc(update, context):
     update.message.reply_text(
         f"Fantastic! The autogenerated bill is shown below."
         f"\n"
-        f"\n----Final Split Bill----"
+        f"\n<b>----Final Split Bill----</b>"
         f"{bill_compiled}"
         f"\n"
-        f"\nThe bot will now send private messages to all parties responsible for the bill."
+        f"\nThe bot will now send private messages to all parties responsible for the bill.",
+        parse_mode=telegram.ParseMode.HTML
     )
 
     logger.info("User has reached end of bill splitter using manual entry.")
@@ -543,7 +554,7 @@ def unknown(update, context):
 conv_handler_split = ConversationHandler(
     entry_points=[CommandHandler('split', bill_splitter)],
     states={
-        TITLE: [MessageHandler(Filters.text & ~Filters.command, title)],
+        TITLE: [MessageHandler(Filters.regex(pattern='^' + '([a-zA-Z0-9\-()])+' + '$') & ~Filters.command, title)],
         PARTICIPANTS: [CallbackQueryHandler(participants, pattern="^participant"),
                        CallbackQueryHandler(no_participants, pattern='^' + str(DONE_PARTICIPANTS) + '$')
                        ],
