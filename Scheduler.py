@@ -271,6 +271,7 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
         if timeslot:                                # if the current timeslot is True
             for timetable in all_timetable_flat:    # timetable = [1,2,3,4]
                 if not timetable[curr_timeslot]:
+                    print("removed")
                     base_timetable[curr_timeslot] = False
                     curr_timeslot += 1
                     break
