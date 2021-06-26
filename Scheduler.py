@@ -11,7 +11,6 @@ import os
 
 # API Token
 TOKEN = os.environ['API_KEY']
-PORT = int(os.environ.get('PORT', '8443'))
 
 # Database
 collection_users = Database.db.users
@@ -289,11 +288,9 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
             if index < event_timeframe_hours:
                 if curr_duration >= min_duration and (not base_timetable[index + 1]):
                     time_period_indices.append([start_index, index + 1])
-                    # curr_duration = 0
             else:
                 if curr_duration >= min_duration:
                     time_period_indices.append([start_index, index + 1])
-                    # curr_duration = 0
         else:
             curr_duration = 0
 
