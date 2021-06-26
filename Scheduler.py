@@ -289,9 +289,11 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
             if index < event_timeframe_hours:
                 if curr_duration >= min_duration and ~base_timetable[index + 1]:
                     time_period_indices.append([start_index, index + 1])
+                    curr_duration = 0
             else:
                 if curr_duration >= min_duration:
                     time_period_indices.append([start_index, index + 1])
+                    curr_duration = 0
         else:
             curr_duration = 0
 
@@ -312,6 +314,7 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
         end_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[1])
         next_slot_str = f"\n{curr_timeslot_num}) {start_str} -> {end_str}"
         final_timeslot_str = final_timeslot_str + next_slot_str
+        curr_timeslot_num += 1
 
     bot = telegram.Bot(token=TOKEN)
     bot.send_message(chat_id=chat_id, text=
