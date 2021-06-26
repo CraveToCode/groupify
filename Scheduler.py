@@ -287,13 +287,13 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
                 start_index = index
             curr_duration += 1
             if index < event_timeframe_hours:
-                if curr_duration >= min_duration and ~base_timetable[index + 1]:
+                if curr_duration >= min_duration and (not base_timetable[index + 1]):
                     time_period_indices.append([start_index, index + 1])
-                    curr_duration = 0
+                    # curr_duration = 0
             else:
                 if curr_duration >= min_duration:
                     time_period_indices.append([start_index, index + 1])
-                    curr_duration = 0
+                    # curr_duration = 0
         else:
             curr_duration = 0
 
