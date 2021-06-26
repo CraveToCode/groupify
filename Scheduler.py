@@ -7,7 +7,11 @@ import Database
 from math import sqrt, ceil
 from HelperFunctions import overwrite, flatten
 import datetime
-from Main import TOKEN
+import os
+
+# API Token
+TOKEN = os.environ['API_KEY']
+PORT = int(os.environ.get('PORT', '8443'))
 
 # Database
 collection_users = Database.db.users
