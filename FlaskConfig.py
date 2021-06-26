@@ -42,12 +42,17 @@ def updateData(groupid, eventid, userid):
                                       { "$set": { f"part_timetable_dict.{userid}": req}})
 
         # Check if all users have input their available timeslots
-        data_cursor = collection_meetups.find_one({'chat_id': chat_id, "_id": meetup_id})
+        data_cursor = collection_meetups.find_one({"chat_id": chat_id, "_id": meetup_id})
+        print(data_cursor)
+        print("cool")
         part_id_left_to_fill = data_cursor['part_id_left_to_fill']
+        print("ok")
+        print(part_id_left_to_fill)
         if len(part_id_left_to_fill) == 0:
             Scheduler.check_common_timeslot(chat_id, meetup_id, data_cursor)
         else:
             part_id_left_to_fill.remove(int(userid))
+            print(part_id_left_to_fill)
             collection_meetups.update_one({'chat_id': chat_id, '_id': meetup_id},
                                           {'$set': {'part_id_left_to_fill': part_id_left_to_fill}})
             if len(part_id_left_to_fill) == 0:
