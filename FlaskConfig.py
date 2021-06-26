@@ -7,7 +7,6 @@ from bson.json_util import dumps
 from bson.objectid import ObjectId
 
 import Scheduler
-from Scheduler import check_common_timeslot
 
 # Database
 collection_users = Database.db.users
