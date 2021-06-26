@@ -259,7 +259,7 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
     all_timetable_flat = []                                     # = [[1,2,3,4], [1,2,3,4], [1,2,3,4]]
     for timetable in all_timetable_list:
         all_timetable_flat.append(flatten(timetable))
-    base_timetable = all_timetable_flat.pop()
+    base_timetable = all_timetable_flat.pop(0)
 
     # Check common timeslots
     curr_timeslot = 0
@@ -270,8 +270,6 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
                     base_timetable[curr_timeslot] = False
                     curr_timeslot += 1
                     break
-        else:
-            continue
     print("base_timetable: \n" + str(base_timetable))
 
     # Find appropriate time periods and store their indices
