@@ -5,6 +5,7 @@ import Database
 from flask import request, jsonify, make_response
 from bson.json_util import dumps
 from bson.objectid import ObjectId
+from Main import check_common_timeslot
 
 import Scheduler
 
@@ -48,14 +49,14 @@ def updateData(groupid, eventid, userid):
         print("ok")
         print(part_id_left_to_fill)
         if len(part_id_left_to_fill) == 0:
-            Scheduler.check_common_timeslot(chat_id, meetup_id, data_cursor)
+            check_common_timeslot(chat_id, meetup_id, data_cursor)
         else:
             part_id_left_to_fill.remove(int(userid))
             print(part_id_left_to_fill)
             collection_meetups.update_one({'chat_id': chat_id, '_id': meetup_id},
                                           {'$set': {'part_id_left_to_fill': part_id_left_to_fill}})
             if len(part_id_left_to_fill) == 0:
-                Scheduler.check_common_timeslot(chat_id, meetup_id, data_cursor)
+                check_common_timeslot(chat_id, meetup_id, data_cursor)
 
         response = make_response(jsonify({"message": "Timeslots updated"}), 200)
         response.headers.add("Access-Control-Allow-Origin", "*")
