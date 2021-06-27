@@ -154,12 +154,13 @@ def participants(update: Update, context: CallbackContext) -> int:
         context.user_data["participant_pool"] = participant_pool                                # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                   # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been added."
+            text=f"<b>{user_input}</b> has been <b>added</b>."
                  f"\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Participant list:"
                  f"\n{participant_pool_listed}",
-            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+            reply_markup=InlineKeyboardMarkup(reply_keyboard),
+            parse_mode=telegram.ParseMode.HTML
         )
     else:
         participants_final.remove(user_input)                                                     # remove user
@@ -167,12 +168,13 @@ def participants(update: Update, context: CallbackContext) -> int:
         context.user_data["participant_pool"] = participant_pool                                  # save new name list
         participant_pool_listed = '\n'.join(participant_pool)                                     # stringify name list
         query.edit_message_text(
-            text=f"{user_input} has been removed."
+            text=f"<b>{user_input}</b> has been <b>removed</b>."
                  f"\nWould you like to add/remove anyone else? If not, please select DONE."
                  f"\n \n"
                  f"Participant list:"
                  f"\n{participant_pool_listed}",
-            reply_markup=InlineKeyboardMarkup(reply_keyboard)
+            reply_markup=InlineKeyboardMarkup(reply_keyboard),
+            parse_mode=telegram.ParseMode.HTML
         )
 
     context.user_data["participants_final"] = participants_final
@@ -251,9 +253,7 @@ conv_handler_meetup = ConversationHandler(
     entry_points=[CommandHandler('meetup', meetup)],
     states={
         TITLE: [MessageHandler(Filters.regex(pattern='^' + '([a-zA-Z0-9\-()])+' + '$') & ~Filters.command, title)],
-        # DURATION: [MessageHandler(Filters.regex(pattern='^' + '([a-zA-Z0-9\-()])+' + '$') & ~Filters.command, title)],
         DURATION: [CallbackQueryHandler(duration, pattern = "^hours")],
-        # TIMEFRAME: [MessageHandler(Filters.text & ~Filters.command, timeframe)],
         TIMEFRAME: [CallbackQueryHandler(timeframe, pattern = "^time")],
         PARTICIPANTS: [CallbackQueryHandler(participants, pattern="^button"),
                        CallbackQueryHandler(no_participants, pattern='^' + str(DONE) + '$')
