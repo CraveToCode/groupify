@@ -1,1 +1,2 @@
-web: python Main.py
+web: python wsgi.py
+worker: python Main.py
