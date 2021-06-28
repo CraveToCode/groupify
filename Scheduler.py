@@ -65,7 +65,7 @@ def duration(update: Update, context: CallbackContext) -> int:
     user_input = query.data.split(':')[1]
     context.user_data["meetup_duration"] = user_input
     logger.info("Estimated event duration: %s hours", user_input)
-    timeframe_list = [['Today', 'Tomorrow', 'Within the next 3 days'], ['Within a week', 'Within 2 weeks'],
+    timeframe_list = [['Today', 'Tomorrow', 'Next 3 days'], ['Within a week', 'Within 2 weeks'],
                       ['Within 3 weeks', 'Within a month']]
     reply_keyboard = []
     for row in timeframe_list:
@@ -87,7 +87,7 @@ def timeframe(update: Update, context: CallbackContext) -> int:
     user_input = query.data.split(':')[1]
 
     # To store in database estimated timeframe in days
-    map_to_number_of_days = {'Today': 1, 'By Tomorrow': 2, 'Within the next 3 days': 3, 'Within a week': 7,
+    map_to_number_of_days = {'Today': 1, 'By Tomorrow': 2, 'Next 3 days': 3, 'Within a week': 7,
                              'Within 2 weeks': 14, 'Within 3 weeks': 21, 'Within a month': 28}
     context.user_data["meetup_timeframe"] = map_to_number_of_days[user_input]
 
