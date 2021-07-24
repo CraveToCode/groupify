@@ -33,12 +33,37 @@ collection_details = Database.db.user_details
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=
     f"Hi {update.effective_user.first_name}! I'm GroupifyBot! How can I help you?"
-    "\n"
-    "You may type /help for more information.")
+    f"\n"
+    f"<i>All users, please ensure you have interacted with me in your private message, in order to receive output "
+    f"messages from my features! You can tap on me (<b>@groupify_bot</b>) and type /start to do so."
+    "\n \n"
+    "You may type /help for more information.</i>",
+    parse_mode=telegram.ParseMode.HTML)
 
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
+
+
+# Notify Command
+def notify_new_user(update, context):
+    new_member_list = ""
+    for new_member in update.message.new_chat_members:
+        if new_member.username != 'groupify_bot':
+            if new_member_list == "":
+                new_member_list = new_member_list + new_member.username
+            else:
+                new_member_list = new_member_list + ", " + new_member.username
+    if new_member_list != "":
+        context.bot.send_message(chat_id=update.effective_chat.id, text=
+        f"Welcome {new_member_list}!"
+        f"\nPlease ensure you have interacted with me in your private message, in order to receive output messages from"
+        f" my features! You can tap on me (<b>@groupify_bot</b>) and type /start to do so.",
+        parse_mode=telegram.ParseMode.HTML)
+
+
+notify_new_user_handler = MessageHandler(Filters.status_update.new_chat_members, notify_new_user)
+dispatcher.add_handler(notify_new_user_handler)
 
 
 # Join Command
