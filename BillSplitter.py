@@ -172,7 +172,7 @@ def upload_image(update, context) -> int:
 
 def auto_read_selection(update, context) -> int:
     print("reached past photo")
-    user_input = update.message.photo
+    user_input = update.message.photo[-1].get_file()
     context.user_data["photo_binary"] = base64.b64encode(user_input.read())
     # TODO need to store this image ^
 
@@ -570,6 +570,7 @@ def retrieve(update, context):
 
 
 bill_photo_retrieve_handler = CommandHandler('retrieve', retrieve)
+
 
 def cancel(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Bill Splitter has successfully terminated.")
