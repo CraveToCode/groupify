@@ -172,7 +172,7 @@ def upload_image(update, context) -> int:
 
 def auto_read_selection(update, context) -> int:
     print("reached past photo")
-    user_input = update.get_file(update.message.photo[-1].file_id)
+    user_input = context.bot.get_file(update.message.photo[-1].file_id)
     context.user_data["photo_binary"] = base64.b64encode(user_input.read())
     # TODO need to store this image ^
 
