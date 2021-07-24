@@ -365,10 +365,7 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
             parse_mode=telegram.ParseMode.HTML)
 
         # Send poll if there are more than one available timeslots, and if user has opted for a poll
-        print(data_cursor['poll'])
-        print(len(poll_options))
         if data_cursor['poll'] and len(poll_options) > 1:
-            print("reached")
             bot.send_poll(chat_id=chat_id,
                           question="Which timeslot is most convenient for you?",
                           options=poll_options,

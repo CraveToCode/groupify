@@ -167,6 +167,7 @@ def upload_image(update, context) -> int:
 
 
 def auto_read_selection(update, context) -> int:
+    print("reached past photo")
     user_input = update.message.text
     # TODO need to store this image ^
     query = update.callback_query
