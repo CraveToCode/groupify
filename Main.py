@@ -10,7 +10,7 @@ import os
 import Database
 from Scheduler import conv_handler_meetup
 from Organiser import conv_handler_organiser
-from BillSplitter import conv_handler_split, bill_photo_retrieve_handler
+from BillSplitter import conv_handler_split
 
 # API Token
 TOKEN = os.environ['API_KEY']
@@ -146,7 +146,6 @@ dispatcher.add_handler(conv_handler_meetup)
 
 # Bill Splitter
 dispatcher.add_handler(conv_handler_split)
-dispatcher.add_handler(bill_photo_retrieve_handler)
 
 # Event Organiser
 dispatcher.add_handler(conv_handler_organiser)
