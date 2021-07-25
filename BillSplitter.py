@@ -381,6 +381,7 @@ def match_users_start(update, context):
     if item is None:
         context.bot.send_message(chat_id=update.effective_chat.id, text=
         "All items have been accounted for. Please input <b>GST%</b> and <b>Service Charge%</b>, seperated by a space."
+        "\nIf there is no GST or Service Charge, input 1 for the respective fields."
         "\n"
         "\ne.g. Your input: 7 10"
         "\nHere, 7 refers to 7% gst, and 10 refers to 10% service charge."
