@@ -241,13 +241,13 @@ def add(update, context) -> int:
             if update.effective_user.username in data_cursor['part_list']:
                 context.user_data["data_cursor"] = data_cursor
                 update.message.reply_text(
-                    f"Enter the name of your event to be added to the organiser <b>{org_title}</b>.",
+                    f"Enter the name of your event to be added to the organiser titled <b>{org_title}</b>.",
                     parse_mode=telegram.ParseMode.HTML
                 )
                 return EVENT_TITLE
             else:
                 update.message.reply_text(
-                    f"You are not a participant of the events in the organiser <b>{org_title}</b>.",
+                    f"You are not a participant of the events in the organiser titled <b>{org_title}</b>.",
                     parse_mode=telegram.ParseMode.HTML
                 )
                 return ConversationHandler.END
