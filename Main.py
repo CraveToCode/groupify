@@ -1,6 +1,7 @@
 # Main file to initialize bot from
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, \
+    CallbackContext
 import flask
 from FlaskConfig import mongobp
 from flask_cors import CORS
@@ -9,7 +10,7 @@ import logging
 import os
 import Database
 from Scheduler import conv_handler_meetup
-from Organiser import conv_handler_organiser
+from Organiser import conv_handler_organiser, conv_handler_add_event, poll_result_handler, retrieve_handler
 from BillSplitter import conv_handler_split
 
 # API Token
@@ -149,6 +150,9 @@ dispatcher.add_handler(conv_handler_split)
 
 # Event Organiser
 dispatcher.add_handler(conv_handler_organiser)
+dispatcher.add_handler(conv_handler_add_event)
+dispatcher.add_handler(poll_result_handler)
+dispatcher.add_handler(retrieve_handler)
 
 
 # Unknown Commands

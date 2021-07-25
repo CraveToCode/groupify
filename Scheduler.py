@@ -214,8 +214,7 @@ def poll_choice(update, context):
         poll_temp = False
         logger.info("User has opted out of a poll.")
 
-
-    # Database insertion of new meetup (to be brought to last state)
+    # Database insertion of new meetup
     chat_id_temp: int = update.effective_chat.id
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")

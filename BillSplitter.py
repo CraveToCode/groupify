@@ -163,7 +163,7 @@ def upload_image(update, context) -> int:
     query.answer()
     logger.info("User has chosen to upload an image.")
 
-    query.edit_message_text(text="Go ahead and upload an image of the receipt!")
+    query.edit_message_text(text="Go ahead and send an image of the receipt!")
 
     return UPLOAD
 
@@ -516,13 +516,20 @@ def gst_sc_calc(update, context):
         if pay_amount_rounded > 0:
             bill_compiled = bill_compiled + f"\n@{key}: ${pay_amount_rounded}"
 
-            context.bot.send_photo(chat_id=payer_id, photo=photo, caption=
-                f"Hello! You owe <b>${pay_amount_rounded}</b> to <b>@{payee_username}</b> "
-                f"for the bill '<b>{bill_title}</b>'."
-                f"\n \n"
-                f"The image of your receipt is shown above!",
-                parse_mode=telegram.ParseMode.HTML
-            )
+            if photo is None:
+                context.bot.send_message(chat_id=payer_id, text=
+                    f"Hello! You owe <b>${pay_amount_rounded}</b> to <b>@{payee_username}</b> "
+                    f"for the bill '<b>{bill_title}</b>'.",
+                    parse_mode=telegram.ParseMode.HTML
+                )
+            else:
+                context.bot.send_photo(chat_id=payer_id, photo=photo, caption=
+                    f"Hello! You owe <b>${pay_amount_rounded}</b> to <b>@{payee_username}</b> "
+                    f"for the bill '<b>{bill_title}</b>'."
+                    f"\n \n"
+                    f"The image of your receipt is shown above!",
+                    parse_mode=telegram.ParseMode.HTML
+                )
 
     # Database insertion of new bill
     new_bill_data = {
@@ -553,12 +560,12 @@ def gst_sc_calc(update, context):
 
 
 def cancel(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Bill Splitter has successfully terminated.")
+    update.message.reply_text("Meetup Scheduler has successfully terminated.")
     return ConversationHandler.END
 
 
 def unknown(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
+    update.message.reply_text("Sorry, I did not understand that command.")
 
 
 conv_handler_split = ConversationHandler(
