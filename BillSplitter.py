@@ -162,7 +162,7 @@ def upload_image(update, context) -> int:
 
     query.edit_message_text(text=
                             "Go ahead and send an image of the receipt!"
-                            "/n<i>Note: Please compress the image before sending it.</i>",
+                            "\n<i>Note: Please compress the image before sending it.</i>",
                             parse_mode=telegram.ParseMode.HTML
                             )
 
