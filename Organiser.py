@@ -471,7 +471,7 @@ def retrieve(update, context):
             "\ne.g. /retrieve holiday",
             parse_mode=telegram.ParseMode.HTML
         )
-        return ConversationHandler.END
+        return
     else:
         chat_id = update.effective_chat.id
         org_title = str(context.args[0])
@@ -480,9 +480,14 @@ def retrieve(update, context):
             update.message.reply_text(
                 "There is no event organiser with that particular title. Please enter a valid title."
             )
-            return ConversationHandler.END
+            return
         else:
             event_list = data_cursor['events']
+            if len(event_list) == 0:
+                context.bot.send_message(chat_id=chat_id, text=
+                    "No events have been added to this event organiser yet.")
+                return
+
             event_list_sorted = sorted(event_list, key=lambda x: (x['s_hour'], x['s_min']))
 
             # Format events
