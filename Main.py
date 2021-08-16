@@ -1,6 +1,4 @@
-# Main file to initialize bot from
-
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import flask
 from FlaskConfig import mongobp
 from flask_cors import CORS
@@ -9,8 +7,10 @@ import logging
 import os
 import Database
 from Scheduler import conv_handler_meetup
-from Organiser import conv_handler_organiser
+from Organiser import conv_handler_organiser, conv_handler_add_event, poll_result_handler, retrieve_handler
 from BillSplitter import conv_handler_split
+
+# Main file to initialize bot from
 
 # API Token
 TOKEN = os.environ['API_KEY']
@@ -33,12 +33,37 @@ collection_details = Database.db.user_details
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=
     f"Hi {update.effective_user.first_name}! I'm GroupifyBot! How can I help you?"
-    "\n"
-    "You may type /help for more information.")
+    f"\n"
+    f"<i>All users, please ensure you have interacted with me in your private message, in order to receive output "
+    f"messages from my features! You can tap on me (<b>@groupify_bot</b>) and type /start to do so."
+    "\n \n"
+    "You may type /help for more information.</i>",
+    parse_mode=telegram.ParseMode.HTML)
 
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
+
+
+# Notify Command
+def notify_new_user(update, context):
+    new_member_list = ""
+    for new_member in update.message.new_chat_members:
+        if new_member.username != 'groupify_bot':
+            if new_member_list == "":
+                new_member_list = new_member_list + new_member.username
+            else:
+                new_member_list = new_member_list + ", " + new_member.username
+    if new_member_list != "":
+        context.bot.send_message(chat_id=update.effective_chat.id, text=
+        f"Welcome {new_member_list}!"
+        f"\nPlease ensure you have interacted with me in your private message, in order to receive output messages from"
+        f" my features! You can tap on me (<b>@groupify_bot</b>) and type /start to do so.",
+        parse_mode=telegram.ParseMode.HTML)
+
+
+notify_new_user_handler = MessageHandler(Filters.status_update.new_chat_members, notify_new_user)
+dispatcher.add_handler(notify_new_user_handler)
 
 
 # Join Command
@@ -54,7 +79,7 @@ def join(update, context):
     }
     collection_users.replace_one({'user_tele_id': user_id, 'chat_id': chat_id}, new_user, upsert=True)
 
-    # Add user to user_details database  # TODO (need to update channel_count properly)
+    # Add user to user_details database
     existing_num_of_entries = collection_details.count_documents({'user_tele_id': user_id})
     if existing_num_of_entries == 0:
         new_detail = {
@@ -79,7 +104,6 @@ def leave(update, context):
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
     collection_users.find_one_and_delete({'user_tele_id': user_id, 'chat_id': chat_id})
-    # TODO need to implement deletion from collection_details
 
     update.message.reply_text(
         "You have been removed from being chosen as a potential participant in future events that are created"
@@ -124,6 +148,9 @@ dispatcher.add_handler(conv_handler_split)
 
 # Event Organiser
 dispatcher.add_handler(conv_handler_organiser)
+dispatcher.add_handler(conv_handler_add_event)
+dispatcher.add_handler(poll_result_handler)
+dispatcher.add_handler(retrieve_handler)
 
 
 # Unknown Commands

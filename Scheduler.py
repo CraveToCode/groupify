@@ -1,5 +1,5 @@
 import telegram
-from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext, \
     CallbackQueryHandler
 import logging
@@ -18,7 +18,7 @@ collection_details = Database.db.user_details
 collection_meetups = Database.db.meetups
 
 # States
-TITLE, DURATION, TIMEFRAME, PARTICIPANTS, NO_PARTICIPANTS = range(5)
+TITLE, DURATION, TIMEFRAME, PARTICIPANTS, NO_PARTICIPANTS, POLL_CHOICE = range(6)
 
 # Callback Data
 DONE = 0
@@ -184,13 +184,37 @@ def participants(update: Update, context: CallbackContext) -> int:
 
 
 def no_participants(update: Update, context: CallbackContext) -> int:
-    # user = update.message.from_user
     query = update.callback_query
     query.answer()
     participants_final = context.user_data.get("participants_final")
     logger.info("All participants have been added. Final list: %s", participants_final)
 
-    # Database insertion of new meetup (to be brought to last state)
+    reply_keyboard = [[InlineKeyboardButton('Generate Poll', callback_data="poll: yes"),
+                      InlineKeyboardButton('No Poll', callback_data="poll: no")]]
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text=
+        "Great!"
+        "\nWould you like to receive an auto-generated poll, if multiple timeslots are available, in order to choose"
+        " the most favourable timeslot?",
+        reply_markup=InlineKeyboardMarkup(reply_keyboard))
+
+    return POLL_CHOICE
+
+
+def poll_choice(update, context):
+    query = update.callback_query
+    query.answer()
+    user_input = query.data
+    poll_temp = None
+    if user_input == "poll: yes":
+        poll_temp = True
+        logger.info("User has opted for a poll.")
+
+    else:
+        poll_temp = False
+        logger.info("User has opted out of a poll.")
+
+    # Database insertion of new meetup
     chat_id_temp: int = update.effective_chat.id
     title_temp: str = context.user_data.get("meetup_title")
     duration_temp: int = context.user_data.get("meetup_duration")
@@ -214,9 +238,11 @@ def no_participants(update: Update, context: CallbackContext) -> int:
         'part_list_id': participant_id_list_temp,
         'part_id_left_to_fill': participant_id_list_temp.copy(),
         'part_timetable_dict': part_timetable_dict_temp,
+        'poll': poll_temp,
         'creator': update.effective_user.id,
         'state': False,
         'output_time': None,
+        'poll_output': None,
         'date': date_temp
     }
     data = collection_meetups.insert_one(new_meetup_data)
@@ -234,9 +260,6 @@ def no_participants(update: Update, context: CallbackContext) -> int:
         "Awesome!"
         "\nEach participant will be sent a link immediately. Please indicate your available timeslots "
         "through that link")
-
-    return ConversationHandler.END
-
 
 def cancel(update: Update, context: CallbackContext) -> int:
     update.message.reply_text(
@@ -257,7 +280,8 @@ conv_handler_meetup = ConversationHandler(
         TIMEFRAME: [CallbackQueryHandler(timeframe, pattern = "^time")],
         PARTICIPANTS: [CallbackQueryHandler(participants, pattern="^button"),
                        CallbackQueryHandler(no_participants, pattern='^' + str(DONE) + '$')
-                       ]
+                       ],
+        POLL_CHOICE: [CallbackQueryHandler(poll_choice, pattern='^poll')]
     },
     fallbacks=[CommandHandler('cancel', cancel), CommandHandler('unknown', unknown)]
 )
@@ -322,10 +346,12 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
         # Format time periods to make them readable
         curr_timeslot_num = 1
         final_timeslot_str = ""
+        poll_options = []
         for period in final_time_periods:
             start_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[0])
             end_str = '{0:%I:%M%p} on {0:%d}/{0:%m}/{0:%y}'.format(period[1])
             next_slot_str = f"\n{curr_timeslot_num}) {start_str} -> {end_str}"
+            poll_options.append(f"{start_str} -> {end_str}")
             final_timeslot_str = final_timeslot_str + next_slot_str
             curr_timeslot_num += 1
 
@@ -336,5 +362,12 @@ def check_common_timeslot(chat_id, meetup_id, data_cursor):
             f"<b>Timeslots:</b>"
             f"{final_timeslot_str}",
             parse_mode=telegram.ParseMode.HTML)
+
+        # Send poll if there are more than one available timeslots, and if user has opted for a poll
+        if data_cursor['poll'] and len(poll_options) > 1:
+            bot.send_poll(chat_id=chat_id,
+                          question="Which timeslot is most convenient for you?",
+                          options=poll_options,
+                          allows_multiple_answers=False)
 
     return base_timetable

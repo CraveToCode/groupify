@@ -1,7 +1,7 @@
 import telegram
-from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, ConversationHandler, MessageHandler, Filters, CallbackContext, \
-    CallbackQueryHandler, RegexHandler
+    CallbackQueryHandler
 import logging
 import Database
 from math import sqrt, ceil
@@ -14,12 +14,10 @@ collection_details = Database.db.user_details
 collection_bills = Database.db.bills
 
 # States
-TITLE, PARTICIPANTS, IMAGE, ITEMS, UPLOAD, AUTO_READ, MANUAL_INPUT, MANUAL_INPUT_LOOP, USER_MATCHING,\
-    USER_MATCHING_LOOP, CHARGES = range(11)
+TITLE, PARTICIPANTS, IMAGE, UPLOAD, MANUAL_INPUT_LOOP, USER_MATCHING, USER_MATCHING_LOOP, CHARGES = range(8)
 
 # Callback Data
-DONE_PARTICIPANTS, YES_IMAGE, NO_IMAGE, YES_READ, NO_READ, GOOD_OUTPUT, SELF_INPUT, DONE_ITEMS, \
-    BEGIN_MATCHING, DONE_PAYERS = range(10)
+DONE_PARTICIPANTS, YES_IMAGE, NO_IMAGE, DONE_ITEMS, BEGIN_MATCHING, DONE_PAYERS = range(6)
 
 # Logging
 logger = logging.getLogger(__name__)
@@ -137,7 +135,6 @@ def participants(update: Update, context: CallbackContext) -> int:
 
 
 def no_participants(update: Update, context: CallbackContext) -> int:
-    # user = update.message.from_user
     query = update.callback_query
     query.answer()
     participants_final = context.user_data.get("participants_final")
@@ -145,6 +142,8 @@ def no_participants(update: Update, context: CallbackContext) -> int:
 
     reply_keyboard = [[InlineKeyboardButton("Yes", callback_data=str(YES_IMAGE)),
                       InlineKeyboardButton("No", callback_data=str(NO_IMAGE))]]
+
+    context.user_data["photo"] = None    # None in case user decides to not upload photo
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=
         "Awesome\! Participants responsible for ~owing you money~ the bill have been added\."
@@ -161,56 +160,46 @@ def upload_image(update, context) -> int:
     query.answer()
     logger.info("User has chosen to upload an image.")
 
-    query.edit_message_text(text="Go ahead and upload an image of the receipt!")
+    query.edit_message_text(text=
+                            "Go ahead and send an image of the receipt!"
+                            "\n<i>Note: Please compress the image before sending it.</i>",
+                            parse_mode=telegram.ParseMode.HTML
+                            )
 
     return UPLOAD
 
 
-def auto_read_selection(update, context) -> int:
-    user_input = update.message.text
-    # TODO need to store this image ^
-    query = update.callback_query
-    query.answer()
+def post_image_input_items_start(update, context) -> int:
+    user_input = update.message.photo[-1].file_id
+    context.user_data["photo"] = str(user_input)
+
     logger.info("User has uploaded an image.")
 
-    reply_keyboard = [[InlineKeyboardButton("Yes", callback_data=str(YES_READ)),
-                      InlineKeyboardButton("No", callback_data=str(NO_READ))]]
+    context.bot.send_message(chat_id=update.effective_chat.id,
+                             text="Your image has been successfully recorded.")
 
-    query.edit_message_text(text="Your image has been successfully recorded. Would you like to use our optical"
-                                 "character recognition to auto-read the items in your receipt and expedite this"
-                                 "process?",
-                            reply_markup=InlineKeyboardMarkup(reply_keyboard))
+    logger.info("User has chosen to input items manually.")
+    context.user_data["item_number"] = 2
+    context.user_data["item_dict"] = {}
+    context.user_data["item_list"] = ""
 
-    return AUTO_READ
-
-
-def auto_read(update, context) -> int:
-    query = update.callback_query
-    query.answer()
-
-    # TODO Implement autoread feature
-
-    logger.info("User has chosen to auto read the receipt.")
-
-    reply_keyboard = [[InlineKeyboardButton("Manual Input", callback_data=str(GOOD_OUTPUT)),
-                      InlineKeyboardButton("Good to go", callback_data=str(SELF_INPUT))]]
-
-    # TODO need to display auto generated results in reply_text below
-    context.bot.send_message(chat_id=update.effective_chat.id, text=
-        "This is the auto-generated bill split according to who owes what. "
-        "\nIf this is inaccurate, you may opt to input the items manually instead.",
-        reply_markup=InlineKeyboardMarkup(reply_keyboard)
+    message_details = context.bot.send_message(chat_id=update.effective_chat.id, text=
+        "Welcome to manual entry\! Please input the *name* of your first item, followed by the *value* and *quantity* "
+        "of it\."
+        "\nFor instance, if you want to input '2x Apple' for '$5\.49' each, you should type '*apple 5\.49 2*', "
+        "without the quotations\."
+        "\n"
+        "\nYou can review this message each time you add an item\."
+        "\n"
+        "\n"
+        "Note: Duplicate names are disallowed\."
+        "\nAgain, you can /cancel at any time to abort this process\.",
+        parse_mode=telegram.ParseMode.MARKDOWN_V2
     )
-    return MANUAL_INPUT
 
+    context.user_data["reference_message_id"] = message_details['message_id']
 
-# TODO temporary placeholder for good_output path of optical recognition feature
-def temp(update, context) -> int:
-    query = update.callback_query
-    query.answer()
-    logger.info("User has accepted the provided output result.")
-
-    return ConversationHandler.END
+    return MANUAL_INPUT_LOOP
 
 
 def input_items_start(update, context) -> int:
@@ -376,6 +365,7 @@ def match_users_start(update, context):
     if item is None:
         context.bot.send_message(chat_id=update.effective_chat.id, text=
         "All items have been accounted for. Please input <b>GST%</b> and <b>Service Charge%</b>, seperated by a space."
+        "\nIf there is no GST or Service Charge, input 1 for the respective fields."
         "\n"
         "\ne.g. Your input: 7 10"
         "\nHere, 7 refers to 7% gst, and 10 refers to 10% service charge."
@@ -475,6 +465,7 @@ def gst_sc_calc(update, context):
     gst = float(user_input[0]) * 0.01 + 1
     service_charge = float(user_input[1]) * 0.01 + 1
     item_dict = context.user_data.get("item_dict")
+    photo = context.user_data.get("photo")              # Photo of receipt
 
     logger.info(f"GST = {gst}. Service Charge = {service_charge}.")
 
@@ -509,23 +500,34 @@ def gst_sc_calc(update, context):
 
         if pay_amount_rounded > 0:
             bill_compiled = bill_compiled + f"\n@{key}: ${pay_amount_rounded}"
-            context.bot.send_message(chat_id=payer_id, text=
-                f"Hello! You owe <b>${pay_amount_rounded}</b> to <b>@{payee_username}</b> "
-                f"for the bill '<b>{bill_title}</b>'.",
-                parse_mode=telegram.ParseMode.HTML
-            )
 
-    # TODO uncomment database insertion later
-    # # Database insertion of new bill
-    # new_bill_data = {
-    #     'chat_id': update.effective_chat.id,
-    #     'bill_title': bill_title,
-    #     'bill_creator_id': update.effective_user.id,
-    #     'money_dict': money_dict,
-    #     'items_to_pay_dict': items_to_pay_dict,
-    #     'date': update.message.date
-    # }
-    # collection_bills.insert_one(new_bill_data)
+            if photo is None:
+                context.bot.send_message(chat_id=payer_id, text=
+                    f"Hello! You owe <b>${pay_amount_rounded}</b> to <b>@{payee_username}</b> "
+                    f"for the bill '<b>{bill_title}</b>'.",
+                    parse_mode=telegram.ParseMode.HTML
+                )
+            else:
+                context.bot.send_photo(chat_id=payer_id, photo=photo, caption=
+                    f"Hello! You owe <b>${pay_amount_rounded}</b> to <b>@{payee_username}</b> "
+                    f"for the bill '<b>{bill_title}</b>'."
+                    f"\n \n"
+                    f"The image of your receipt is shown above!",
+                    parse_mode=telegram.ParseMode.HTML
+                )
+
+    # Database insertion of new bill
+    new_bill_data = {
+        'chat_id': update.effective_chat.id,
+        'bill_title': bill_title,
+        'bill_creator_id': update.effective_user.id,
+        'money_dict': money_dict,
+        'items_to_pay_dict': items_to_pay_dict,
+        'photo': photo,
+        'date': update.message.date
+    }
+
+    collection_bills.insert_one(new_bill_data)
 
     update.message.reply_text(
         f"Fantastic! The autogenerated bill is shown below."
@@ -543,12 +545,12 @@ def gst_sc_calc(update, context):
 
 
 def cancel(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Bill Splitter has successfully terminated.")
+    update.message.reply_text("Meetup Scheduler has successfully terminated.")
     return ConversationHandler.END
 
 
 def unknown(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
+    update.message.reply_text("Sorry, I did not understand that command.")
 
 
 conv_handler_split = ConversationHandler(
@@ -561,13 +563,7 @@ conv_handler_split = ConversationHandler(
         IMAGE: [CallbackQueryHandler(upload_image, pattern='^' + str(YES_IMAGE) + '$'),
                 CallbackQueryHandler(input_items_start, pattern='^' + str(NO_IMAGE) + '$')
                 ],
-        UPLOAD: [MessageHandler(Filters.photo & ~Filters.command, auto_read_selection)],
-        AUTO_READ: [CallbackQueryHandler(auto_read, pattern='^' + str(YES_READ) + '$'),
-                    CallbackQueryHandler(input_items_start, pattern='^' + str(NO_READ) + '$')
-                ],
-        MANUAL_INPUT: [CallbackQueryHandler(temp, pattern='^' + str(GOOD_OUTPUT) + '$'),
-                       CallbackQueryHandler(input_items_start, pattern='^' + str(SELF_INPUT) + '$')
-                ],
+        UPLOAD: [MessageHandler(Filters.photo & ~Filters.command, post_image_input_items_start)],
         MANUAL_INPUT_LOOP: [MessageHandler(
             Filters.regex(pattern='^' + '([a-zA-Z0-9])+(\s){1}([0-9])+(\.){0,1}([0-9])*(\s){1}([1-9])+' + '$') &
             ~Filters.command, input_items_loop),
