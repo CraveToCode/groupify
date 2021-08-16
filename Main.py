@@ -79,7 +79,7 @@ def join(update, context):
     }
     collection_users.replace_one({'user_tele_id': user_id, 'chat_id': chat_id}, new_user, upsert=True)
 
-    # Add user to user_details database  # TODO (need to update channel_count properly)
+    # Add user to user_details database
     existing_num_of_entries = collection_details.count_documents({'user_tele_id': user_id})
     if existing_num_of_entries == 0:
         new_detail = {
@@ -104,7 +104,6 @@ def leave(update, context):
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
     collection_users.find_one_and_delete({'user_tele_id': user_id, 'chat_id': chat_id})
-    # TODO need to implement deletion from collection_details
 
     update.message.reply_text(
         "You have been removed from being chosen as a potential participant in future events that are created"

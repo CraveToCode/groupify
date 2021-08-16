@@ -1,5 +1,4 @@
 import json
-
 import flask
 import Database
 from flask import request, jsonify, make_response
