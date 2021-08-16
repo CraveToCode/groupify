@@ -1,5 +1,3 @@
-# Main file to initialize bot from
-
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import flask
 from FlaskConfig import mongobp
@@ -11,6 +9,8 @@ import Database
 from Scheduler import conv_handler_meetup
 from Organiser import conv_handler_organiser, conv_handler_add_event, poll_result_handler, retrieve_handler
 from BillSplitter import conv_handler_split
+
+# Main file to initialize bot from
 
 # API Token
 TOKEN = os.environ['API_KEY']
